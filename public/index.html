@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Student Academic Portal &bull; The Federal Polytechnic, Ilaro</title>
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#f0fdf4',
+              100: '#dcfce7',
+              200: '#bbf7d0',
+              600: '#16a34a',
+              700: '#15803d',
+              800: '#166534',
+              900: '#14532d',
+              950: '#052e16'
+            }
+          },
+          fontFamily: {
+            sans: ['Inter', 'system-ui', '-apple-system', 'Segoe UI', 'Roboto', 'sans-serif'],
+            mono: ['JetBrains Mono', 'Menlo', 'Monaco', 'Courier New', 'monospace']
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    /* Clean Minimalist Print Styles */
+    @media print {
+      body {
+        background: #ffffff !important;
+        color: #000000 !important;
+        font-size: 10pt;
+      }
+      .no-print {
+        display: none !important;
+      }
+      .print-doc {
+        border: 1px solid #000000 !important;
+        box-shadow: none !important;
+        padding: 12mm !important;
+        max-width: 100% !important;
+        margin: 0 !important;
+      }
+      .page-break-avoid {
+        break-inside: avoid;
+        page-break-inside: avoid;
+      }
+      @page {
+        size: A4 portrait;
+        margin: 10mm;
+      }
+      * {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+      }
+    }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-900 font-sans min-h-screen flex flex-col antialiased selection:bg-brand-700 selection:text-white">
+
+  <!-- TOP MINIMAL NAVIGATION BAR (Students only see Result Checker & Screener) -->
+  <nav class="no-print bg-white border-b border-slate-200 sticky top-0 z-40">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+
+      <!-- Institutional Crest & Identity -->
+      <div class="flex items-center space-x-3">
+        <div class="w-8 h-8 rounded-lg bg-brand-800 flex items-center justify-center text-white font-bold text-xs tracking-tighter shadow-sm">
+          FPI
+        </div>
+        <div>
+          <div class="flex items-center space-x-2">
+            <span class="font-bold text-sm text-slate-900">Federal Polytechnic, Ilaro</span>
+            <span class="text-[10px] px-2 py-0.5 rounded font-mono font-semibold bg-brand-50 text-brand-700 border border-brand-200">NBTE 4.0</span>
+          </div>
+          <p class="text-[11px] text-slate-500">Student Academic Portal &bull; Directorate of Academic Affairs</p>
+        </div>
+      </div>
+
+      <!-- Segmented Navigation (Only Public Student Tabs) -->
+      <div class="flex items-center bg-slate-100 p-1 rounded-lg border border-slate-200 text-xs font-semibold">
+        <button
+          onclick="switchTab('checker')"
+          id="tab-btn-checker"
+          class="px-3.5 py-1.5 rounded-md bg-white text-slate-900 shadow-sm transition"
+        >
+          Result Checker
+        </button>
+        <button
+          onclick="switchTab('screening')"
+          id="tab-btn-screening"
+          class="px-3.5 py-1.5 rounded-md text-slate-600 hover:text-slate-900 transition"
+        >
+          JAMB / WAEC Screener
+        </button>
+      </div>
+
+    </div>
+  </nav>
+
+  <!-- MAIN VIEWPORT -->
+  <main class="flex-grow max-w-5xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 flex flex-col justify-center">
+
+    <!-- ===================================================================== -->
+    <!-- TAB 1: RESULT CHECKER WITH PASSWORD AUTHENTICATION -->
+    <!-- ===================================================================== -->
+    <div id="tab-content-checker" class="space-y-6">
+
+      <!-- Student Login Card -->
+      <div id="checker-login-box" class="max-w-md mx-auto bg-white rounded-xl border border-slate-200 p-6 sm:p-8 shadow-sm">
+        <div class="text-center mb-6">
+          <div class="w-10 h-10 mx-auto rounded-full bg-brand-50 border border-brand-200 flex items-center justify-center text-brand-800 mb-2">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+            </svg>
+          </div>
+          <h2 class="text-xl font-bold text-slate-900">Student Result Portal</h2>
+          <p class="text-xs text-slate-500 mt-1">Authenticate with your FPI Matriculation Number and Password</p>
+        </div>
+
+        <form onsubmit="handleStudentLogin(event)" class="space-y-4 text-xs">
+          <div>
+            <label class="block font-semibold text-slate-700 uppercase tracking-wider mb-1">Matriculation Number</label>
+            <input
+              type="text"
+              id="student-matric"
+              required
+              placeholder="e.g. 2460113253"
+              autocomplete="off"
+              class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-lg text-sm font-mono font-bold focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-700 transition"
+            />
+            <p class="text-[10px] text-slate-400 mt-1">FPI Format: 24 (Yr) 60 (School) 1 (Dept) 1 (Full-Time) 3253 (ID)</p>
+          </div>
+
+          <div>
+            <div class="flex items-center justify-between mb-1">
+              <label class="block font-semibold text-slate-700 uppercase tracking-wider">Password</label>
+              <span class="text-[10px] text-slate-400">Default: 12345678</span>
+            </div>
+            <div class="relative">
+              <input
+                type="password"
+                id="student-password"
+                required
+                placeholder="Enter password"
+                value="12345678"
+                class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-lg text-sm font-mono focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-700 transition"
+              />
+            </div>
+          </div>
+
+          <!-- Quick Test Auto-Fill Helper -->
+          <div class="bg-brand-50/70 border border-brand-200 rounded-lg p-2.5 flex items-center justify-between">
+            <div>
+              <span class="text-slate-600 block text-[11px]">Test Account:</span>
+              <span class="font-mono font-bold text-brand-900">2460113253 / 12345678</span>
+            </div>
+            <button
+              type="button"
+              onclick="autoFillTestAccount('2460113253', '12345678')"
+              class="text-xs font-bold text-brand-800 hover:text-brand-950 underline"
+            >
+              Auto-Fill
+            </button>
+          </div>
+
+          <!-- Error Alert -->
+          <div id="login-error-box" class="hidden p-3 bg-red-50 border border-red-200 text-red-700 rounded-lg font-medium text-xs"></div>
+
+          <button
+            type="submit"
+            id="login-btn"
+            class="w-full py-2.5 bg-brand-800 hover:bg-brand-900 text-white font-bold uppercase tracking-wider rounded-lg shadow-sm transition"
+          >
+            Access Statement of Result
+          </button>
+        </form>
+      </div>
+
+      <!-- Result Statement Document Card (Hidden Initially) -->
+      <div id="checker-statement-box" class="hidden space-y-4">
+
+        <!-- Top Controls Bar -->
+        <div class="no-print flex items-center justify-between bg-white border border-slate-200 rounded-xl p-3 shadow-sm">
+          <button
+            onclick="returnToStudentLogin()"
+            class="text-xs font-semibold text-slate-600 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 px-3.5 py-1.5 rounded-lg transition"
+          >
+            &larr; Log Out / Check Another
+          </button>
+          <div class="flex items-center space-x-2">
+            <button
+              onclick="window.print()"
+              class="text-xs font-bold text-white bg-brand-800 hover:bg-brand-900 px-4 py-1.5 rounded-lg shadow-sm transition flex items-center space-x-1.5"
+            >
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+              </svg>
+              <span>Print Official Statement</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Printable Document -->
+        <div class="print-doc bg-white rounded-xl border border-slate-200 p-6 sm:p-10 shadow-sm space-y-6">
+
+          <!-- Header -->
+          <div class="text-center border-b border-slate-200 pb-5">
+            <div class="text-[10px] font-bold uppercase tracking-widest text-slate-500">The Federal Polytechnic, Ilaro</div>
+            <h1 class="text-xl sm:text-2xl font-bold uppercase tracking-tight text-slate-900 mt-1">
+              Official Statement of Academic Results
+            </h1>
+            <p class="text-xs font-semibold text-brand-800 uppercase mt-0.5">
+              Directorate of Academic Affairs &bull; NBTE 4.0 Unified Scale
+            </p>
+          </div>
+
+          <!-- Student Profile Grid -->
+          <div class="bg-slate-50 rounded-lg p-4 border border-slate-200 text-xs grid grid-cols-2 sm:grid-cols-3 gap-3">
+            <div>
+              <span class="text-slate-500 text-[10px] uppercase block font-medium">Student Full Name</span>
+              <span id="doc-name" class="font-bold text-slate-900 text-sm uppercase">-</span>
+            </div>
+            <div>
+              <span class="text-slate-500 text-[10px] uppercase block font-medium">Matriculation Number</span>
+              <span id="doc-matric" class="font-mono font-bold text-brand-800 text-sm">-</span>
+            </div>
+            <div>
+              <span class="text-slate-500 text-[10px] uppercase block font-medium">School / Faculty</span>
+              <span id="doc-school" class="font-semibold text-slate-900">-</span>
+            </div>
+            <div>
+              <span class="text-slate-500 text-[10px] uppercase block font-medium">Department</span>
+              <span id="doc-dept" class="font-semibold text-slate-900">-</span>
+            </div>
+            <div>
+              <span class="text-slate-500 text-[10px] uppercase block font-medium">Programme &amp; Level</span>
+              <span id="doc-prog" class="font-semibold text-slate-900">-</span>
+            </div>
+            <div>
+              <span class="text-slate-500 text-[10px] uppercase block font-medium">Academic Session</span>
+              <span id="doc-session" class="font-mono text-slate-700">-</span>
+            </div>
+          </div>
+
+          <!-- Semesters Breakdown -->
+          <div id="doc-semesters-container" class="space-y-6"></div>
+
+          <!-- Overall Summary Box -->
+          <div class="bg-slate-900 text-white rounded-lg p-5 border border-slate-800 page-break-avoid">
+            <div class="flex flex-wrap items-center justify-between gap-4">
+              <div>
+                <div class="text-[10px] font-mono text-slate-400 uppercase">Cumulative Academic Summary</div>
+                <div class="flex space-x-6 text-xs mt-2">
+                  <div>
+                    <span class="text-slate-400 block text-[10px]">Total Units Reg.</span>
+                    <span id="doc-total-cu" class="text-base font-bold font-mono text-white">-</span>
+                  </div>
+                  <div>
+                    <span class="text-slate-400 block text-[10px]">Total Units Passed</span>
+                    <span id="doc-passed-cu" class="text-base font-bold font-mono text-brand-200">-</span>
+                  </div>
+                  <div>
+                    <span class="text-slate-400 block text-[10px]">Total Quality Points</span>
+                    <span id="doc-total-qp" class="text-base font-bold font-mono text-white">-</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="text-right">
+                <div class="text-[10px] font-mono text-slate-400 uppercase">Cumulative CGPA</div>
+                <div id="doc-cgpa" class="text-3xl font-bold font-mono tracking-tight text-white">0.00</div>
+                <div id="doc-class-badge" class="mt-1 inline-block px-2.5 py-0.5 rounded text-[11px] font-bold uppercase bg-brand-600 text-white font-mono">
+                  Distinction
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Footer Legend -->
+          <div class="border-t border-slate-200 pt-4 text-[10px] text-slate-500 flex flex-wrap justify-between items-center gap-2 page-break-avoid">
+            <div>
+              <span class="font-bold text-slate-700">NBTE 4.0 Standard:</span> A(4.00), AB(3.50), B(3.25), BC(3.00), C(2.75), CD(2.50), D(2.25), E(2.00), F(0.00)
+            </div>
+            <div class="font-mono text-slate-400">Auth Hash: <span id="doc-auth-hash">FPI-SEC-VALID</span></div>
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <!-- ===================================================================== -->
+    <!-- TAB 2: ADMISSION & SCREENING CHECKER (JAMB / WAEC) -->
+    <!-- ===================================================================== -->
+    <div id="tab-content-screening" class="hidden space-y-6">
+
+      <div class="bg-white rounded-xl border border-slate-200 p-6 sm:p-8 shadow-sm">
+        <div class="max-w-2xl">
+          <h2 class="text-xl font-bold text-slate-900">JAMB &amp; WAEC Admission Screener</h2>
+          <p class="text-xs text-slate-500 mt-1">
+            Calculate your Post-UTME aggregate score and check your qualification status across Nigerian polytechnics and universities.
+          </p>
+        </div>
+
+        <form onsubmit="handleScreeningEvaluate(event)" class="mt-6 space-y-6">
+
+          <!-- Target School & Discipline -->
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
+            <div>
+              <label class="block font-semibold text-slate-700 uppercase mb-1">Target Institution</label>
+              <select id="screen-inst" class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg font-medium focus:bg-white focus:ring-2 focus:ring-brand-700">
+                <option value="fpi" selected>The Federal Polytechnic, Ilaro (FPI)</option>
+                <option value="yabatech">Yaba College of Technology (YABATECH)</option>
+                <option value="mapoly">Moshood Abiola Polytechnic (MAPOLY)</option>
+                <option value="lasu">Lagos State University (LASU)</option>
+                <option value="unilag">University of Lagos (UNILAG)</option>
+              </select>
+            </div>
+
+            <div>
+              <label class="block font-semibold text-slate-700 uppercase mb-1">Target Discipline</label>
+              <select id="screen-course" class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg font-medium focus:bg-white focus:ring-2 focus:ring-brand-700">
+                <option value="COM" selected>Computer Science</option>
+                <option value="EEE">Electrical/Electronic Engineering</option>
+                <option value="SLT">Science Laboratory Technology (SLT)</option>
+                <option value="ACC">Accountancy / Accounting</option>
+                <option value="BAM">Business Administration</option>
+                <option value="MAC">Mass Communication</option>
+              </select>
+            </div>
+
+            <div>
+              <label class="block font-semibold text-slate-700 uppercase mb-1">Sittings Count</label>
+              <select id="screen-sittings" class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg font-medium focus:bg-white focus:ring-2 focus:ring-brand-700">
+                <option value="1" selected>1 Sitting (Single WAEC/NECO)</option>
+                <option value="2">2 Sittings (Combined)</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- JAMB Score -->
+          <div class="bg-slate-50 p-4 rounded-lg border border-slate-200 flex flex-wrap items-center justify-between gap-4">
+            <div>
+              <label class="block text-xs font-bold text-slate-800 uppercase">UTME / JAMB Score (0 - 400)</label>
+              <p class="text-[11px] text-slate-500">Enter your official UTME score</p>
+            </div>
+            <div class="w-36">
+              <input
+                type="number"
+                id="screen-jamb"
+                min="0"
+                max="400"
+                value="220"
+                required
+                class="w-full px-3 py-2 text-center text-lg font-mono font-bold bg-white border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-700"
+              />
+            </div>
+          </div>
+
+          <!-- O'Level Subjects & Grades -->
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <label class="block text-xs font-bold text-slate-800 uppercase">O'Level Subjects &amp; Grades (WAEC/NECO)</label>
+              <span class="text-[11px] text-slate-500">Provide 5 relevant subjects</span>
+            </div>
+
+            <div class="space-y-2">
+              <div class="grid grid-cols-3 gap-2">
+                <input type="text" value="English Language" readonly class="col-span-2 px-3 py-2 bg-slate-100 border border-slate-300 rounded-lg text-xs font-medium text-slate-700" />
+                <select id="ol-g1" class="px-3 py-2 bg-white border border-slate-300 rounded-lg text-xs font-bold text-brand-800">
+                  <option value="A1">A1 (10 pts)</option>
+                  <option value="B2" selected>B2 (9 pts)</option>
+                  <option value="B3">B3 (8 pts)</option>
+                  <option value="C4">C4 (7 pts)</option>
+                  <option value="C5">C5 (6 pts)</option>
+                  <option value="C6">C6 (5 pts)</option>
+                  <option value="D7">D7 (0 pts)</option>
+                </select>
+              </div>
+
+              <div class="grid grid-cols-3 gap-2">
+                <input type="text" value="Mathematics" readonly class="col-span-2 px-3 py-2 bg-slate-100 border border-slate-300 rounded-lg text-xs font-medium text-slate-700" />
+                <select id="ol-g2" class="px-3 py-2 bg-white border border-slate-300 rounded-lg text-xs font-bold text-brand-800">
+                  <option value="A1" selected>A1 (10 pts)</option>
+                  <option value="B2">B2 (9 pts)</option>
+                  <option value="B3">B3 (8 pts)</option>
+                  <option value="C4">C4 (7 pts)</option>
+                  <option value="C5">C5 (6 pts)</option>
+                  <option value="C6">C6 (5 pts)</option>
+                  <option value="D7">D7 (0 pts)</option>
+                </select>
+              </div>
+
+              <div class="grid grid-cols-3 gap-2">
+                <select id="ol-s3" class="col-span-2 px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs font-medium">
+                  <option value="Physics" selected>Physics</option>
+                  <option value="Economics">Economics</option>
+                  <option value="Literature in English">Literature in English</option>
+                </select>
+                <select id="ol-g3" class="px-3 py-2 bg-white border border-slate-300 rounded-lg text-xs font-bold text-brand-800">
+                  <option value="A1">A1 (10 pts)</option>
+                  <option value="B2">B2 (9 pts)</option>
+                  <option value="B3" selected>B3 (8 pts)</option>
+                  <option value="C4">C4 (7 pts)</option>
+                </select>
+              </div>
+
+              <div class="grid grid-cols-3 gap-2">
+                <select id="ol-s4" class="col-span-2 px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs font-medium">
+                  <option value="Chemistry" selected>Chemistry</option>
+                  <option value="Biology">Biology</option>
+                  <option value="Financial Accounting">Financial Accounting</option>
+                  <option value="Government">Government</option>
+                </select>
+                <select id="ol-g4" class="px-3 py-2 bg-white border border-slate-300 rounded-lg text-xs font-bold text-brand-800">
+                  <option value="A1">A1 (10 pts)</option>
+                  <option value="B2" selected>B2 (9 pts)</option>
+                  <option value="B3">B3 (8 pts)</option>
+                  <option value="C4">C4 (7 pts)</option>
+                </select>
+              </div>
+
+              <div class="grid grid-cols-3 gap-2">
+                <select id="ol-s5" class="col-span-2 px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs font-medium">
+                  <option value="Further Mathematics">Further Mathematics</option>
+                  <option value="Biology" selected>Biology</option>
+                  <option value="Economics">Economics</option>
+                  <option value="Commerce">Commerce</option>
+                </select>
+                <select id="ol-g5" class="px-3 py-2 bg-white border border-slate-300 rounded-lg text-xs font-bold text-brand-800">
+                  <option value="A1">A1 (10 pts)</option>
+                  <option value="B2">B2 (9 pts)</option>
+                  <option value="B3">B3 (8 pts)</option>
+                  <option value="C4" selected>C4 (7 pts)</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <button
+            type="submit"
+            class="w-full py-2.5 bg-brand-800 hover:bg-brand-900 text-white text-xs font-bold uppercase tracking-wider rounded-lg shadow-sm transition"
+          >
+            Evaluate Admission Eligibility
+          </button>
+        </form>
+
+        <!-- Screening Report Card -->
+        <div id="screen-report-card" class="hidden mt-8 pt-6 border-t border-slate-200 space-y-6"></div>
+
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- MINIMAL INSTITUTIONAL FOOTER -->
+  <footer class="no-print bg-white border-t border-slate-200 py-4 text-center text-xs text-slate-500">
+    <div class="max-w-5xl mx-auto px-4 flex flex-wrap justify-between items-center gap-2">
+      <p>&copy; 2026 The Federal Polytechnic, Ilaro &bull; NBTE 4.0 Standard</p>
+      <p class="font-mono text-[11px] text-slate-400">Technology for Self Reliance</p>
+    </div>
+  </footer>
+
+  <!-- SCRIPT LOGIC -->
+  <script>
+    function switchTab(tabId) {
+      ['checker', 'screening'].forEach(t => {
+        document.getElementById(`tab-content-${t}`).classList.add('hidden');
+        document.getElementById(`tab-btn-${t}`).className = "px-3.5 py-1.5 rounded-md text-slate-600 hover:text-slate-900 transition";
+      });
+
+      document.getElementById(`tab-content-${tabId}`).classList.remove('hidden');
+      document.getElementById(`tab-btn-${tabId}`).className = "px-3.5 py-1.5 rounded-md bg-white text-slate-900 shadow-sm transition";
+    }
+
+    function autoFillTestAccount(matric, pass) {
+      document.getElementById('student-matric').value = matric;
+      document.getElementById('student-password').value = pass;
+    }
+
+    // -------------------------------------------------------------------------
+    // 1. STUDENT AUTHENTICATION & RESULT FETCHING
+    // -------------------------------------------------------------------------
+    async function handleStudentLogin(event) {
+      if (event) event.preventDefault();
+      const errBox = document.getElementById('login-error-box');
+      errBox.classList.add('hidden');
+
+      const matric_no = document.getElementById('student-matric').value.trim();
+      const password = document.getElementById('student-password').value.trim();
+
+      if (!matric_no || !password) return;
+
+      const btn = document.getElementById('login-btn');
+      btn.textContent = 'AUTHENTICATING...';
+      btn.disabled = true;
+
+      try {
+        const res = await fetch('/api/auth/student-login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ matric_no, password })
+        });
+        const data = await res.json();
+
+        if (!res.ok || !data.success) {
+          throw new Error(data.message || 'Authentication failed.');
+        }
+
+        renderStudentStatement(data);
+      } catch (err) {
+        errBox.textContent = err.message;
+        errBox.classList.remove('hidden');
+      } finally {
+        btn.textContent = 'ACCESS STATEMENT OF RESULT';
+        btn.disabled = false;
+      }
+    }
+
+    function renderStudentStatement(data) {
+      const student = data.student || {};
+      const summary = data.summary || {};
+      const semesters = data.semesters || [];
+
+      document.getElementById('doc-name').textContent = student.full_name || 'N/A';
+      document.getElementById('doc-matric').textContent = student.matric_no || 'N/A';
+      document.getElementById('doc-school').textContent = student.school || 'School of Pure and Applied Sciences';
+      document.getElementById('doc-dept').textContent = student.department || 'Computer Science';
+      document.getElementById('doc-prog').textContent = `${student.programme || 'National Diploma'} (${student.level || 'ND 1'})`;
+      document.getElementById('doc-session').textContent = student.academic_session || '2024/2025';
+      document.getElementById('doc-auth-hash').textContent = `FPI-${(student.matric_no||'').replace(/[^a-zA-Z0-9]/g, '')}-${Date.now().toString(36).toUpperCase()}`;
+
+      document.getElementById('doc-total-cu').textContent = summary.totalCreditUnits || '0';
+      document.getElementById('doc-passed-cu').textContent = summary.totalUnitsPassed || '0';
+      document.getElementById('doc-total-qp').textContent = Number(summary.totalQualityPoints || 0).toFixed(2);
+      document.getElementById('doc-cgpa').textContent = Number(summary.cgpa || 0).toFixed(2);
+
+      const badge = document.getElementById('doc-class-badge');
+      badge.textContent = summary.classification || 'N/A';
+
+      const container = document.getElementById('doc-semesters-container');
+      container.innerHTML = '';
+
+      semesters.forEach((sem) => {
+        const card = document.createElement('div');
+        card.className = 'border border-slate-200 rounded-lg overflow-hidden page-break-avoid';
+
+        let rows = '';
+        (sem.courses || []).forEach((c, idx) => {
+          rows += `
+            <tr class="border-b border-slate-100 text-xs">
+              <td class="py-2 px-3 text-slate-400 font-mono">${idx + 1}</td>
+              <td class="py-2 px-3 font-mono font-bold text-slate-900">${c.course_code}</td>
+              <td class="py-2 px-3 text-slate-800">${c.course_title}</td>
+              <td class="py-2 px-3 text-center font-mono">${c.credit_unit}</td>
+              <td class="py-2 px-3 text-center font-mono font-bold">${c.score}%</td>
+              <td class="py-2 px-3 text-center"><span class="px-2 py-0.5 rounded font-mono font-bold text-[11px] bg-slate-100 text-brand-900">${c.grade}</span></td>
+              <td class="py-2 px-3 text-center font-mono text-slate-600">${Number(c.grade_point).toFixed(2)}</td>
+              <td class="py-2 px-3 text-center font-mono font-bold text-slate-900">${Number(c.quality_point).toFixed(2)}</td>
+            </tr>
+          `;
+        });
+
+        card.innerHTML = `
+          <div class="bg-slate-100/70 px-4 py-2 flex justify-between items-center border-b border-slate-200">
+            <span class="font-bold text-xs text-slate-900 uppercase">&bull; ${sem.semester}</span>
+            <span class="text-xs font-mono font-bold bg-brand-800 text-white px-2 py-0.5 rounded">GPA: ${Number(sem.gpa).toFixed(2)}</span>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left">
+              <thead>
+                <tr class="bg-slate-50 border-b border-slate-200 text-[10px] font-bold text-slate-500 uppercase">
+                  <th class="py-1.5 px-3">#</th>
+                  <th class="py-1.5 px-3">Course</th>
+                  <th class="py-1.5 px-3">Title</th>
+                  <th class="py-1.5 px-3 text-center">CU</th>
+                  <th class="py-1.5 px-3 text-center">Score</th>
+                  <th class="py-1.5 px-3 text-center">Grade</th>
+                  <th class="py-1.5 px-3 text-center">GP</th>
+                  <th class="py-1.5 px-3 text-center">QP</th>
+                </tr>
+              </thead>
+              <tbody>${rows}</tbody>
+              <tfoot>
+                <tr class="bg-slate-50 text-xs font-bold text-slate-700">
+                  <td colspan="3" class="py-2 px-3 text-right uppercase text-[10px] text-slate-500">Semester Totals:</td>
+                  <td class="py-2 px-3 text-center font-mono">${sem.totalCreditUnits}</td>
+                  <td colspan="3" class="py-2 px-3 text-center text-brand-700">${sem.totalUnitsPassed} Passed</td>
+                  <td class="py-2 px-3 text-center font-mono text-slate-900">${Number(sem.totalQualityPoints).toFixed(2)}</td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+
+      document.getElementById('checker-login-box').classList.add('hidden');
+      document.getElementById('checker-statement-box').classList.remove('hidden');
+    }
+
+    function returnToStudentLogin() {
+      document.getElementById('checker-statement-box').classList.add('hidden');
+      document.getElementById('checker-login-box').classList.remove('hidden');
+    }
+
+    // -------------------------------------------------------------------------
+    // 2. ADMISSION SCREENING EVALUATION
+    // -------------------------------------------------------------------------
+    async function handleScreeningEvaluate(event) {
+      if (event) event.preventDefault();
+
+      const jambScore = Number(document.getElementById('screen-jamb').value) || 0;
+      const sittings = Number(document.getElementById('screen-sittings').value) || 1;
+      const targetInstitutionId = document.getElementById('screen-inst').value;
+      const targetCourseCode = document.getElementById('screen-course').value;
+
+      const olevelSubjects = [
+        { subject: 'English Language', grade: document.getElementById('ol-g1').value },
+        { subject: 'Mathematics', grade: document.getElementById('ol-g2').value },
+        { subject: document.getElementById('ol-s3').value, grade: document.getElementById('ol-g3').value },
+        { subject: document.getElementById('ol-s4').value, grade: document.getElementById('ol-g4').value },
+        { subject: document.getElementById('ol-s5').value, grade: document.getElementById('ol-g5').value }
+      ];
+
+      try {
+        const res = await fetch('/api/screening/evaluate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            jambScore,
+            olevelSubjects,
+            sittings,
+            targetCourseCode,
+            targetInstitutionId
+          })
+        });
+
+        const data = await res.json();
+        if (!res.ok || !data.success) throw new Error(data.message);
+
+        renderScreeningReport(data.evaluation);
+      } catch (err) {
+        alert('Screening error: ' + err.message);
+      }
+    }
+
+    function renderScreeningReport(evaluation) {
+      const primary = evaluation.primaryChoice;
+      const alternatives = evaluation.eligibleAlternatives || [];
+      const reportBox = document.getElementById('screen-report-card');
+      reportBox.classList.remove('hidden');
+
+      let statusBg = primary.course.isQualified ? 'bg-emerald-50 border-emerald-200 text-emerald-900' :
+        (primary.course.isCompetitive ? 'bg-amber-50 border-amber-200 text-amber-900' : 'bg-red-50 border-red-200 text-red-900');
+
+      let altRows = '';
+      alternatives.forEach(alt => {
+        altRows += `
+          <div class="flex items-center justify-between p-2.5 bg-white border border-slate-200 rounded-lg text-xs">
+            <div>
+              <span class="font-bold text-slate-900">${alt.institutionShort} &bull; ${alt.courseName}</span>
+              <span class="text-slate-500 text-[11px] block">${alt.degree} &bull; Benchmark: ${alt.aggregateCutOff}%</span>
+            </div>
+            <span class="px-2 py-0.5 bg-emerald-100 text-emerald-800 font-bold rounded text-[11px]">
+              ${alt.status}
+            </span>
+          </div>
+        `;
+      });
+
+      reportBox.innerHTML = `
+        <div class="p-5 rounded-xl border ${statusBg}">
+          <div class="flex flex-wrap items-center justify-between gap-3 mb-3">
+            <div>
+              <span class="text-[10px] font-bold uppercase tracking-wider block opacity-70">Primary Choice Evaluation</span>
+              <h3 class="text-base font-bold">${primary.institution.name} &bull; ${primary.course.courseName} (${primary.course.degree})</h3>
+            </div>
+            <div class="text-right">
+              <span class="text-[10px] uppercase font-bold block opacity-70">Aggregate Score</span>
+              <span class="text-2xl font-black font-mono">${primary.aggregateScore}%</span>
+            </div>
+          </div>
+
+          <div class="p-3 bg-white/80 backdrop-blur rounded-lg border border-black/5 text-xs space-y-1">
+            <div class="font-bold uppercase tracking-wide text-slate-900 flex items-center space-x-1.5">
+              <span>Status:</span>
+              <span class="underline">${primary.course.statusLabel}</span>
+            </div>
+            <p class="text-slate-700">${primary.course.recommendationReason}</p>
+          </div>
+
+          <div class="grid grid-cols-3 gap-2 text-xs mt-3 pt-3 border-t border-black/10">
+            <div>
+              <span class="text-[10px] block opacity-70">JAMB (50% pts)</span>
+              <span class="font-mono font-bold">${primary.jambComponent} pts</span>
+            </div>
+            <div>
+              <span class="text-[10px] block opacity-70">O'Level Points</span>
+              <span class="font-mono font-bold">${primary.olevelPoints} / 50</span>
+            </div>
+            <div>
+              <span class="text-[10px] block opacity-70">Departmental Cut-Off</span>
+              <span class="font-mono font-bold">${primary.course.aggregateCutOff}%</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="space-y-3">
+          <h4 class="text-xs font-bold uppercase text-slate-700 tracking-wider">
+            Matching Alternative Schools &amp; Courses Where You Qualify (${alternatives.length})
+          </h4>
+          <div class="space-y-2">
+            ${altRows || '<p class="text-xs text-slate-500 italic">No alternative matches found for this score combination.</p>'}
+          </div>
+        </div>
+      `;
+
+      reportBox.scrollIntoView({ behavior: 'smooth' });
+    }
+  </script>
+</body>
+</html>
