@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Official Administration Portal &bull; The Federal Polytechnic, Ilaro</title>
+
+  <!-- Eager theme init (no flash) -->
+  <script>
+    (function () {
+      var saved = localStorage.getItem('fpi_theme');
+      if (saved === 'dark' || (!saved && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+        document.documentElement.classList.add('dark');
+      }
+    })();
+  </script>
+
+  <!-- Fonts & icon library -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+  <link rel="stylesheet" href="/styles.css">
+
+  <!-- Admin-specific layout overrides -->
+  <style>
+    /* Off-center the main content so it doesn't sit under the fixed sidebar */
+    .main { margin-left: 0; }
+    @media (min-width: 1024px) { .main { margin-left: 260px; } }
+
+    /* Wider admin content area */
+    .content { max-width: 960px; padding: 40px 32px 80px; }
+
+    /* Mobile off-canvas sidebar */
+    .sidebar.mobile-open {
+      display: flex;
+    }
+    @media (min-width: 1024px) {
+      .sidebar.mobile-open { display: flex; }
+    }
+
+    .content > section { display: block; }
+  </style>
+</head>
+<body>
+
+  <!-- MOBILE TOP BAR -->
+  <header class="topbar no-print">
+    <div class="topbar-brand">
+      <div class="logo">FPI</div>
+      <span>Admin Portal</span>
+    </div>
+    <div class="topbar-tabs">
+      <button id="topbar-menu-btn" class="tab-btn hidden" onclick="toggleSidebar()"><i class="fa-solid fa-bars"></i> Menu</button>
+      <button class="theme-toggle" id="theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme">
+        <i class="fa-solid fa-sun" id="theme-icon"></i>
+      </button>
+    </div>
+  </header>
+
+  <!-- SIDE NAVIGATION (desktop) -->
+  <aside class="sidebar" id="admin-sidebar">
+    <div class="sidebar-brand">
+      <div class="logo">FPI</div>
+      <div>
+        <div class="brand-name">Admin Portal</div>
+        <div class="brand-sub">Federal Polytechnic, Ilaro</div>
+      </div>
+    </div>
+
+    <nav class="nav-items">
+      <p class="nav-section-label">Management</p>
+      <button class="nav-item active" id="nav-dashboard" onclick="openSection('dashboard')">
+        <i class="fa-solid fa-tachometer-alt"></i>
+        <span>Dashboard</span>
+      </button>
+      <button class="nav-item" id="nav-students" onclick="openSection('students')">
+        <i class="fa-solid fa-users"></i>
+        <span>Students</span>
+      </button>
+      <button class="nav-item" id="nav-results" onclick="openSection('results')">
+        <i class="fa-solid fa-list-check"></i>
+        <span>Results</span>
+      </button>
+      <button class="nav-item" id="nav-settings" onclick="openSection('settings')">
+        <i class="fa-solid fa-gear"></i>
+        <span>Settings</span>
+      </button>
+    </nav>
+
+    <div style="margin-top:16px;">
+      <div style="padding:10px 12px;">
+        <button id="nav-logout-btn" class="btn btn-ghost hidden" style="width:100%;" onclick="handleAdminLogout()">
+          <i class="fa-solid fa-right-from-bracket"></i> Sign Out
+        </button>
+      </div>
+    </div>
+
+    <div class="sidebar-foot">NBTE 4.0 &bull; Technology for Self Reliance</div>
+  </aside>
+
+  <!-- MAIN VIEW -->
+  <main class="main">
+    <div class="content">
+
+      <!-- 1. ADMIN PIN AUTHENTICATION GATE -->
+      <div id="admin-auth-view" class="hidden">
+        <div class="auth-fullscreen">
+          <div class="auth-content">
+            <div class="auth-header">
+              <div class="auth-icon"><i class="fa-solid fa-landmark"></i></div>
+              <h1 class="auth-title">Federal Polytechnic<br><span class="auth-subtitle">Ilaro Administration Portal</span></h1>
+              <p class="auth-description">Secure access to student records and academic management</p>
+            </div>
+            <div class="field">
+                <label class="label" for="admin-pin-field">Administrative Access Code</label>
+                <input type="password" id="admin-pin-field" required placeholder="Enter your PIN" class="input mono input-lg" autocomplete="off">
+              </div>
+              <div class="badge-box">
+                <div>
+                  <span class="muted xs" style="display:block;">Institutional Access Key:</span>
+                  <code class="mono strong auth-key" style="font-size:14px;color:var(--brand-text);">FPI-ADMIN-2026</code>
+                </div>
+                <i class="fa-solid fa-key" style="color:var(--brand);"></i>
+              </div>
+              <div id="admin-auth-err" class="alert hidden" style="margin-bottom:16px;"></div>
+              <button type="submit" class="btn btn-primary btn-lg btn-full">
+                <i class="fa-solid fa-unlock"></i> Access Administration Console
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <!-- 2. OFFICIAL DASHBOARD CONSOLE -->
+      <div id="admin-dashboard-view" class="hidden">
+        <!-- Dashboard section -->
+        <section id="section-dashboard">
+          <div class="stats-grid" style="margin-bottom:20px;">
+            <div class="card stat-card">
+              <span class="stat-title"><i class="fa-solid fa-database" style="margin-right:6px;"></i>Active Database</span>
+              <div class="val" id="stat-student-count">0</div>
+              <div class="cap">Registered Students</div>
+            </div>
+
+            <div class="card stat-card">
+              <span class="stat-title"><i class="fa-solid fa-calendar-days" style="margin-right:6px;"></i>Academic Session</span>
+              <div class="val" style="color:var(--brand);">2024/2025</div>
+              <div class="cap">NBTE 4.0 Unified Engine</div>
+            </div>
+
+            <div class="card stat-card">
+              <span class="stat-title"><i class="fa-solid fa-hashtag" style="margin-right:6px;"></i>FPI Matric Format Standard</span>
+              <div class="val" style="font-size:15px;margin-top:14px;">24 &bull; 60 &bull; 1 &bull; 1 &bull; 3253</div>
+              <div class="cap">Year | School | Dept | Mode | ID</div>
+            </div>
+          </div>
+
+          <div class="card" style="margin-bottom:20px;">
+            <div class="card-accent"></div>
+            <div class="card-pad-lg">
+              <h2 class="section-title" style="margin:0 0 8px;">Administration Overview</h2>
+              <p class="muted small" style="margin:0;">
+                Use the management tabs to maintain student records and semester results.
+              </p>
+            </div>
+          </div>
+
+          <div class="two-col">
+            <div class="card">
+              <div class="card-accent"></div>
+              <div class="card-pad-lg">
+                <div class="modal-icon" style="margin-bottom:12px;">
+                  <i class="fa-solid fa-users"></i>
+                </div>
+                <h3 class="section-title">Student Management</h3>
+                <p class="muted small">
+                  Register students, update their records, view the student roster and remove records.
+                </p>
+                <button class="btn btn-primary" style="width:100%;margin-top:12px;" onclick="openSection('students')">
+                  <i class="fa-solid fa-users"></i> Manage Students
+                </button>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-accent"></div>
+              <div class="card-pad-lg">
+                <div class="modal-icon" style="margin-bottom:12px;">
+                  <i class="fa-solid fa-list-check"></i>
+                </div>
+                <h3 class="section-title">Results Management</h3>
+                <p class="muted small">
+                  Record semester courses and upload student grades from the Results section.
+                </p>
+                <button class="btn btn-ghost" style="width:100%;margin-top:12px;" onclick="openSection('results')">
+                  <i class="fa-solid fa-list-check"></i> Manage Results
+                </button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Students section -->
+        <section id="section-students">
+          <div class="toolbar" style="margin-bottom:20px;">
+            <div>
+              <h2 class="section-title" style="margin:0 0 6px;">Students Management</h2>
+              <p class="muted small" style="margin:0;">Register, update, view and remove student records.</p>
+            </div>
+          </div>
+
+          <!-- Register / Update Student -->
+            <div class="card">
+              <div class="card-accent"></div>
+              <div class="card-pad">
+                <h3 class="section-title">Register / Update Student Record</h3>
+                <form onsubmit="handleRegisterStudent(event)">
+                  <div class="grid-3" style="grid-template-columns:1fr 1fr;">
+                    <div class="field">
+                      <label class="label" for="reg-matric">Matriculation No *</label>
+                    <input type="text" id="reg-matric" required placeholder="2460113253" class="input mono">
+                    </div>
+                    <div class="field">
+                      <label class="label">Student Password</label>
+                      <input type="text" readonly id="reg-password" value="12345678" class="input" style="background:var(--surface-2);color:var(--text-soft);">
+                      <p class="help-text">All students use the fixed default password <span class="mono strong">12345678</span>. This cannot be changed by the admin.</p>
+                    </div>
+                  </div>
+                  <div class="field">
+                    <label class="label" for="reg-name">Full Student Name (Surname First) *</label>
+                    <input type="text" id="reg-name" required placeholder="ADEWALE OLUWASEUN IBRAHIM" class="input uppercase" style="text-transform:uppercase;">
+                  </div>
+                  <div class="field">
+                    <label class="label" for="reg-email">Email Address (for result verification) *</label>
+                    <input type="email" id="reg-email" required placeholder="student@example.com" class="input">
+                    <p class="help-text">The one‑time login code will be sent to this address when the student checks a result.</p>
+                  </div>
+                  <div class="grid-3" style="grid-template-columns:1fr 1fr;">
+                    <div class="field">
+                      <label class="label" for="reg-school">School</label>
+                      <select id="reg-school" class="select">
+                        <option value="School of Pure and Applied Sciences">School of Pure & Applied (60)</option>
+                        <option value="School of Engineering">School of Engineering (40)</option>
+                        <option value="School of Management Studies">School of Management Studies (20)</option>
+                        <option value="School of Environmental Studies">School of Environmental Studies (30)</option>
+                        <option value="School of Communication & Info Tech">School of Communication & IT (50)</option>
+                      </select>
+                    </div>
+                    <div class="field">
+                      <label class="label" for="reg-dept">Department</label>
+                      <input type="text" id="reg-dept" value="Computer Science" class="input">
+                    </div>
+                  </div>
+                  <div class="grid-3" style="grid-template-columns:1fr 1fr;">
+                    <div class="field">
+                      <label class="label" for="reg-prog">Programme & Level</label>
+                      <input type="text" id="reg-prog" value="National Diploma (ND) Full-Time" class="input">
+                    </div>
+                    <div class="field">
+                      <label class="label" for="reg-session">Academic Session</label>
+                      <input type="text" id="reg-session" value="2024/2025" class="input">
+                    </div>
+                  </div>
+                  <button type="submit" class="btn btn-primary" style="width:100%;">
+                    <i class="fa-solid fa-user-plus"></i> Save Student Record
+                  </button>
+                </form>
+              </div>
+            </div>
+
+            <!-- Course Result Batch Entry -->
+            <div class="card">
+              <div class="card-accent"></div>
+              <div class="card-pad">
+                <h3 class="section-title">Record Semester Course Grades</h3>
+                <form onsubmit="handleBatchCourses(event)">
+                  <div class="grid-3" style="grid-template-columns:1fr 1fr;">
+                    <div class="field">
+                      <label class="label" for="crs-matric">Student Matric No *</label>
+                      <input type="text" id="crs-matric" required placeholder="2460113253" class="input mono">
+                    </div>
+                    <div class="field">
+                      <label class="label" for="crs-sem">Semester</label>
+                      <select id="crs-sem" class="select">
+                        <option value="ND 1 First Semester">ND 1 First Semester</option>
+                        <option value="ND 1 Second Semester">ND 1 Second Semester</option>
+                        <option value="ND 2 First Semester">ND 2 First Semester</option>
+                        <option value="ND 2 Second Semester">ND 2 Second Semester</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div style="display:grid;grid-template-columns:2fr 2fr 1fr;gap:8px;margin-bottom:6px;">
+                    <span class="label" style="margin:0;">Code</span>
+                    <span class="label" style="margin:0;">Course Title</span>
+                    <span class="label" style="margin:0;text-align:center;">CU / Score</span>
+                  </div>
+                  <div style="display:grid;grid-template-columns:2fr 2fr 1fr;gap:8px;margin-bottom:8px;">
+                    <input type="text" id="crs-code-1" value="COM 111" class="input mono">
+                    <input type="text" id="crs-title-1" value="Intro to Computing" class="input">
+                    <div style="display:flex;gap:4px;">
+                      <input type="number" id="crs-cu-1" value="3" class="input" style="width:50%;text-align:center;">
+                      <input type="number" id="crs-sc-1" value="84" class="input" style="width:50%;text-align:center;font-weight:700;">
+                    </div>
+                  </div>
+                  <div style="display:grid;grid-template-columns:2fr 2fr 1fr;gap:8px;">
+                    <input type="text" id="crs-code-2" value="COM 112" class="input mono">
+                    <input type="text" id="crs-title-2" value="Digital Electronics" class="input">
+                    <div style="display:flex;gap:4px;">
+                      <input type="number" id="crs-cu-2" value="3" class="input" style="width:50%;text-align:center;">
+                      <input type="number" id="crs-sc-2" value="78" class="input" style="width:50%;text-align:center;font-weight:700;">
+                    </div>
+                  </div>
+
+                  <button type="submit" class="btn btn-ghost" style="width:100%;margin-top:14px;">
+                    <i class="fa-solid fa-cloud-arrow-up"></i> Upload Course Grades
+                  </button>
+                </form>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Registered Students Roster -->
+          <div class="card">
+            <div class="card-accent"></div>
+            <div class="card-pad">
+              <div class="toolbar" style="margin-bottom:16px;">
+                <h3 class="section-title" style="margin:0;">Registered Student Roster</h3>
+                <button class="link-action" onclick="fetchAdminStudents()"><i class="fa-solid fa-rotate-right"></i> Refresh Table</button>
+              </div>
+              <div class="table-wrap">
+                <table class="table">
+                  <thead>
+                    <tr>
+                      <th>Matric No</th>
+                      <th>Full Name</th>
+                      <th>School & Department</th>
+                      <th class="center">Courses</th>
+                      <th class="right">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="admin-table-body"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Results section -->
+        <section id="section-results">
+          <div style="margin-bottom:20px;">
+            <h2 class="section-title" style="margin:0 0 6px;">Results Management</h2>
+            <p class="muted small" style="margin:0;">Record semester course grades for registered students.</p>
+          </div>
+
+          <!-- Course Result Batch Entry -->
+            <div class="card">
+              <div class="card-accent"></div>
+              <div class="card-pad">
+                <h3 class="section-title">Record Semester Course Grades</h3>
+                <form onsubmit="handleBatchCourses(event)">
+                  <div class="grid-3" style="grid-template-columns:1fr 1fr;">
+                    <div class="field">
+                      <label class="label" for="crs-matric">Student Matric No *</label>
+                      <input type="text" id="crs-matric" required placeholder="2460113253" class="input mono">
+                    </div>
+                    <div class="field">
+                      <label class="label" for="crs-sem">Semester</label>
+                      <select id="crs-sem" class="select">
+                        <option value="ND 1 First Semester">ND 1 First Semester</option>
+                        <option value="ND 1 Second Semester">ND 1 Second Semester</option>
+                        <option value="ND 2 First Semester">ND 2 First Semester</option>
+                        <option value="ND 2 Second Semester">ND 2 Second Semester</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div style="display:grid;grid-template-columns:2fr 2fr 1fr;gap:8px;margin-bottom:6px;">
+                    <span class="label" style="margin:0;">Code</span>
+                    <span class="label" style="margin:0;">Course Title</span>
+                    <span class="label" style="margin:0;text-align:center;">CU / Score</span>
+                  </div>
+                  <div style="display:grid;grid-template-columns:2fr 2fr 1fr;gap:8px;margin-bottom:8px;">
+                    <input type="text" id="crs-code-1" value="COM 111" class="input mono">
+                    <input type="text" id="crs-title-1" value="Intro to Computing" class="input">
+                    <div style="display:flex;gap:4px;">
+                      <input type="number" id="crs-cu-1" value="3" class="input" style="width:50%;text-align:center;">
+                      <input type="number" id="crs-sc-1" value="84" class="input" style="width:50%;text-align:center;font-weight:700;">
+                    </div>
+                  </div>
+                  <div style="display:grid;grid-template-columns:2fr 2fr 1fr;gap:8px;">
+                    <input type="text" id="crs-code-2" value="COM 112" class="input mono">
+                    <input type="text" id="crs-title-2" value="Digital Electronics" class="input">
+                    <div style="display:flex;gap:4px;">
+                      <input type="number" id="crs-cu-2" value="3" class="input" style="width:50%;text-align:center;">
+                      <input type="number" id="crs-sc-2" value="78" class="input" style="width:50%;text-align:center;font-weight:700;">
+                    </div>
+                  </div>
+
+                  <button type="submit" class="btn btn-ghost" style="width:100%;margin-top:14px;">
+                    <i class="fa-solid fa-cloud-arrow-up"></i> Upload Course Grades
+                  </button>
+                </form>
+              </div>
+            </div>
+
+          </div>
+        </section>
+
+        <!-- Settings section -->
+        <section id="section-settings" class="hidden">
+          <div class="card">
+            <div class="card-pad-lg">
+              <h2 class="section-title" style="margin:0 0 10px;">Settings</h2>
+              <p class="muted small">Configure system settings and preferences from this section.</p>
+            </div>
+          </div>
+        </section>
+
+      </div>
+
+    </div>
+  </main>
+
+  <!-- SCRIPT LOGIC -->
+  <script>
+    function toggleTheme() {
+      var isDark = document.documentElement.classList.toggle('dark');
+      localStorage.setItem('fpi_theme', isDark ? 'dark' : 'light');
+      var icon = document.getElementById('theme-icon');
+      if (icon) icon.className = isDark ? 'fa-solid fa-moon' : 'fa-solid fa-sun';
+    }
+
+    // Mobile off-canvas sidebar
+    function toggleSidebar() {
+      document.getElementById('admin-sidebar').classList.toggle('mobile-open');
+    }
+
+    var adminToken = localStorage.getItem('fpi_admin_token') || null;
+
+    function showDashboard() {
+      document.getElementById('admin-auth-view').classList.add('hidden');
+      document.getElementById('admin-dashboard-view').classList.remove('hidden');
+      var logoutBtn = document.getElementById('nav-logout-btn');
+      if (logoutBtn) logoutBtn.classList.remove('hidden');
+
+      // Show menu button and sidebar when logged in
+      var menuBtn = document.getElementById('topbar-menu-btn');
+      if (menuBtn) menuBtn.classList.remove('hidden');
+      var sidebar = document.getElementById('admin-sidebar');
+      if (sidebar) sidebar.classList.remove('hidden');
+    }
+
+    function showAuthGate() {
+      document.getElementById('admin-dashboard-view').classList.add('hidden');
+      document.getElementById('admin-auth-view').classList.remove('hidden');
+      var logoutBtn = document.getElementById('nav-logout-btn');
+      if (logoutBtn) logoutBtn.classList.add('hidden');
+
+      // Hide menu button and sidebar when not logged in
+      var menuBtn = document.getElementById('topbar-menu-btn');
+      if (menuBtn) menuBtn.classList.add('hidden');
+      var sidebar = document.getElementById('admin-sidebar');
+      if (sidebar) sidebar.classList.add('hidden');
+    }
+
+    function openSection(sectionId) {
+      document.querySelectorAll('#admin-dashboard-view section').forEach(function (sec) {
+        sec.classList.add('hidden');
+      });
+      var target = document.getElementById('section-' + sectionId);
+      if (target) target.classList.remove('hidden');
+
+      ['dashboard', 'students', 'results', 'settings'].forEach(function (id) {
+        var btn = document.getElementById('nav-' + id);
+        if (btn) btn.classList.remove('active');
+      });
+      var active = document.getElementById('nav-' + sectionId);
+      if (active) active.classList.add('active');
+
+      document.getElementById('admin-sidebar').classList.remove('mobile-open');
+    }
+
+    if (adminToken) {
+      showDashboard();
+      fetchAdminStudents();
+      openSection('dashboard');
+    } else {
+      showAuthGate();
+    }
+
+    async function handleAdminAuth(event) {
+      if (event) event.preventDefault();
+      var pin = document.getElementById('admin-pin-field').value.trim();
+      var errBox = document.getElementById('admin-auth-err');
+      errBox.classList.add('hidden');
+
+      try {
+        var res = await fetch('/api/admin/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ pin: pin })
+        });
+        var data = await res.json();
+        if (!res.ok || !data.success) throw new Error(data.message);
+
+        adminToken = data.token;
+        localStorage.setItem('fpi_admin_token', adminToken);
+        showDashboard();
+        fetchAdminStudents();
+        openSection('dashboard');
+      } catch (err) {
+        errBox.textContent = err.message;
+        errBox.classList.remove('hidden');
+      }
+    }
+
+    function handleAdminLogout() {
+      adminToken = null;
+      localStorage.removeItem('fpi_admin_token');
+      document.getElementById('admin-pin-field').value = '';
+      showAuthGate();
+    }
+
+    async function fetchAdminStudents() {
+      if (!adminToken) return;
+      try {
+        var res = await fetch('/api/admin/students', {
+          headers: { 'x-admin-key': adminToken }
+        });
+        var data = await res.json();
+        if (!res.ok || !data.success) throw new Error(data.message);
+
+        document.getElementById('stat-student-count').textContent = data.students.length;
+        var tbody = document.getElementById('admin-table-body');
+        tbody.innerHTML = '';
+
+        data.students.forEach(function (s) {
+          var tr = document.createElement('tr');
+          tr.innerHTML =
+            '<td class="mono strong" style="color:var(--brand);">' + s.matric_no + '</td>' +
+            '<td class="strong">' + s.full_name + '</td>' +
+            '<td class="soft">' + (s.school || 'School of Pure & Applied') + ' &bull; ' + s.department + '</td>' +
+            '<td class="center mono strong">' + (s.total_courses || 0) + '</td>' +
+            '<td class="right"><button class="link-danger" onclick="deleteStudent(\'' + s.matric_no + '\')"><i class="fa-solid fa-trash-can"></i> Delete</button></td>';
+          tbody.appendChild(tr);
+        });
+      } catch (err) {
+        console.error('Fetch error:', err);
+      }
+    }
+
+    async function handleRegisterStudent(event) {
+      if (event) event.preventDefault();
+      var payload = {
+        matric_no: document.getElementById('reg-matric').value.trim(),
+        password: document.getElementById('reg-password').value.trim(),
+        full_name: document.getElementById('reg-name').value.trim(),
+        school: document.getElementById('reg-school').value,
+        department: document.getElementById('reg-dept').value.trim(),
+        programme: document.getElementById('reg-prog').value.trim(),
+        level: 'ND 1',
+        academic_session: document.getElementById('reg-session').value.trim(),
+        email: document.getElementById('reg-email').value.trim()
+      };
+
+      try {
+        var res = await fetch('/api/admin/students', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'x-admin-key': adminToken },
+          body: JSON.stringify(payload)
+        });
+        var data = await res.json();
+        if (!res.ok || !data.success) throw new Error(data.message);
+
+        alert(data.message);
+        fetchAdminStudents();
+      } catch (err) {
+        alert('Registration error: ' + err.message);
+      }
+    }
+
+    async function handleBatchCourses(event) {
+      if (event) event.preventDefault();
+      var matric_no = document.getElementById('crs-matric').value.trim();
+      var semester = document.getElementById('crs-sem').value;
+
+      var courses = [
+        {
+          course_code: document.getElementById('crs-code-1').value.trim(),
+          course_title: document.getElementById('crs-title-1').value.trim(),
+          credit_unit: Number(document.getElementById('crs-cu-1').value),
+          score: Number(document.getElementById('crs-sc-1').value)
+        },
+        {
+          course_code: document.getElementById('crs-code-2').value.trim(),
+          course_title: document.getElementById('crs-title-2').value.trim(),
+          credit_unit: Number(document.getElementById('crs-cu-2').value),
+          score: Number(document.getElementById('crs-sc-2').value)
+        }
+      ];
+
+      try {
+        var res = await fetch('/api/admin/results/batch', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'x-admin-key': adminToken },
+          body: JSON.stringify({ matric_no: matric_no, semester: semester, courses: courses })
+        });
+        var data = await res.json();
+        if (!res.ok || !data.success) throw new Error(data.message);
+
+        alert(data.message);
+        fetchAdminStudents();
+      } catch (err) {
+        alert('Course upload error: ' + err.message);
+      }
+    }
+
+    async function deleteStudent(matric) {
+      if (!confirm('Confirm deletion of student ' + matric + '? This action is irreversible.')) return;
+
+      try {
+        var res = await fetch('/api/admin/students/' + encodeURIComponent(matric), {
+          method: 'DELETE',
+          headers: { 'x-admin-key': adminToken }
+        });
+        var data = await res.json();
+        if (!res.ok || !data.success) throw new Error(data.message);
+
+        alert(data.message);
+        fetchAdminStudents();
+      } catch (err) {
+        alert('Delete failed: ' + err.message);
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+      if (document.documentElement.classList.contains('dark')) {
+        var icon = document.getElementById('theme-icon');
+        if (icon) icon.className = 'fa-solid fa-moon';
+      }
+
+      // Hide menu button and sidebar on initial load if not logged in
+      var adminToken = localStorage.getItem('fpi_admin_token') || null;
+      if (!adminToken) {
+        var menuBtn = document.getElementById('topbar-menu-btn');
+        if (menuBtn) menuBtn.classList.add('hidden');
+        var sidebar = document.getElementById('admin-sidebar');
+        if (sidebar) sidebar.classList.add('hidden');
+      }
+    });
+  </script>
+</body>
+</html>

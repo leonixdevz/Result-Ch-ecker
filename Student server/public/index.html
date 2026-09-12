@@ -1,0 +1,1322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Student Academic Portal &bull; The Federal Polytechnic, Ilaro</title>
+
+  <!-- Eager theme init (no flash) -->
+  <script>
+    (function () {
+      var saved = localStorage.getItem('fpi_theme');
+      if (saved === 'dark' || (!saved && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+        document.documentElement.classList.add('dark');
+      }
+    })()
+  </script>
+
+  <!-- Fonts & icon library -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+  <!-- Shared design system (no Tailwind) -->
+  <link rel="stylesheet" href="/styles.css">
+
+  <style>
+    /* Auth modal: password field + mode toggle spacing */
+    #login-mode-toggle {
+      display: flex;
+      gap: 4px;
+      background: var(--surface-2);
+      border-radius: 8px;
+      padding: 4px;
+      margin-bottom: 16px;
+    }
+    #login-mode-toggle .mode-btn {
+      flex: 1;
+      border: none;
+      background: transparent;
+      color: var(--text-soft);
+      font-size: 13px;
+      font-weight: 600;
+      padding: 8px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background .15s, color .15s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+    #login-mode-toggle .mode-btn i {
+      font-size: 12px;
+    }
+    #login-mode-toggle .mode-btn.active {
+      background: var(--brand);
+      color: #fff;
+    }
+    #login-mode-toggle .mode-btn:hover:not(.active) {
+      color: var(--text);
+      background: rgba(128,128,128,.08);
+    }
+
+    .modal-field + .modal-field {
+      margin-top: 14px;
+    }
+
+    .mode-hint {
+      margin-top: 12px;
+      font-size: 12px;
+      color: var(--text-soft);
+      text-align: center;
+    }
+
+    .link-btn {
+      font-family: inherit;
+    }
+
+    #reset-flow #reset-step-request,
+    #reset-flow #reset-step-verify {
+      animation: fadeSlide .18s ease-out;
+    }
+
+    @keyframes fadeSlide {
+      from { opacity: 0; transform: translateY(-4px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ================================================================ -->
+  <!-- SIDE NAVIGATION (desktop) -->
+  <!-- ================================================================ -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <div class="logo">FPI</div>
+      <div>
+        <div class="brand-name">Student Portal</div>
+        <div class="brand-sub">Federal Polytechnic, Ilaro</div>
+      </div>
+    </div>
+
+    <nav class="nav-items">
+      <p class="nav-section-label">Academic Services</p>
+      <button class="nav-item active" id="nav-checker" onclick="openScreen('checker')">
+        <i class="fa-solid fa-file-lines"></i>
+        <span>Result Checker</span>
+      </button>
+      <button class="nav-item" id="nav-screening" onclick="openScreen('screening')">
+        <i class="fa-solid fa-magnifying-glass-chart"></i>
+        <span>Admission Screening</span>
+      </button>
+    </nav>
+
+    <div class="sidebar-foot">NBTE 4.0 &bull; Technology for Self Reliance</div>
+  </aside>
+
+  <!-- ================================================================ -->
+  <!-- MOBILE TOP BAR -->
+  <!-- ================================================================ -->
+  <header class="topbar no-print">
+    <div class="topbar-brand">
+      <div class="logo">FPI</div>
+      <span>Student Portal</span>
+    </div>
+    <div class="topbar-tabs">
+      <button class="tab-btn active" onclick="openScreen('checker')">Checker</button>
+      <button class="tab-btn" onclick="openScreen('screening')">Screening</button>
+    </div>
+  </header>
+
+  <!-- ================================================================ -->
+  <!-- MAIN CONTENT — each feature owns a full screen -->
+  <!-- ================================================================ -->
+  <main class="main">
+    <div class="content">
+
+      <!-- ===================== -->
+      <!-- SCREEN: RESULT CHECKER -->
+      <!-- ===================== -->
+      <section id="screen-checker">
+
+        <!-- LANDING STATE -->
+        <div id="checker-landing">
+          <div class="card">
+            <div class="card-accent"></div>
+            <div class="card-pad-lg text-center">
+              <div class="hero-icon">
+                <i class="fa-solid fa-file-circle-check"></i>
+              </div>
+              <div class="hero">
+                <h1>Student Result Checker</h1>
+                <p>Authenticate with your FPI Matriculation Number and Password to access your official Statement of Academic Results (NBTE 4.0).</p>
+              </div>
+              <div style="margin-top:24px;">
+                <button class="btn btn-primary btn-lg" onclick="openAuthModal()">
+                  <i class="fa-solid fa-right-to-bracket"></i>
+                  Check My Result
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="card info-strip" style="margin-top:16px;">
+            <div>
+              <p style="margin:0;font-size:12px;font-weight:700;color:var(--text-soft);text-transform:uppercase;letter-spacing:.08em;">Official Test Account</p>
+              <p style="margin:4px 0 0;" class="mono strong"><span style="color:var(--brand);">2460113253 / 12345678</span></p>
+            </div>
+            <p class="muted xs" style="max-width:360px;margin:0;">Use the demo account to preview a statement. For real students, use your assigned password. <span class="mono">24 &bull; 60 &bull; 1 &bull; 1 &bull; 3253</span>.</p>
+          </div>
+        </div>
+
+        <!-- RESULT STATEMENT STATE (full page) -->
+        <div id="checker-statement-box" class="hidden">
+          <div class="no-print" style="display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px;margin-bottom:16px;">
+            <button class="btn btn-ghost" onclick="returnToStudentLogin()">
+              <i class="fa-solid fa-arrow-left"></i>
+              Log Out / Check Another
+            </button>
+            <button class="btn btn-primary" onclick="window.print()">
+              <i class="fa-solid fa-print"></i>
+              Print Official Statement
+            </button>
+          </div>
+
+          <div class="card print-doc">
+            <div class="card-pad-lg" style="padding-top:32px;">
+
+              <!-- Header -->
+              <div class="doc-header">
+                <div class="doc-kicker">The Federal Polytechnic, Ilaro</div>
+                <h1 class="doc-title">Official Statement of Academic Results</h1>
+                <div class="doc-sub">Directorate of Academic Affairs &bull; NBTE 4.0 Unified Scale</div>
+              </div>
+
+              <!-- Student profile -->
+              <div class="profile-grid" style="margin:20px 0;">
+                <div><span class="profile-label">Student Full Name</span><span class="profile-value strong uppercase" id="doc-name">-</span></div>
+                <div><span class="profile-label">Matriculation Number</span><span class="profile-value mono strong" id="doc-matric" style="color:var(--brand);">-</span></div>
+                <div><span class="profile-label">School / Faculty</span><span class="profile-value" id="doc-school">-</span></div>
+                <div><span class="profile-label">Department</span><span class="profile-value" id="doc-dept">-</span></div>
+                <div><span class="profile-label">Programme &amp; Level</span><span class="profile-value" id="doc-prog">-</span></div>
+                <div><span class="profile-label">Academic Session</span><span class="profile-value mono" id="doc-session">-</span></div>
+              </div>
+
+              <!-- Semesters -->
+              <div id="doc-semesters-container" style="display:flex;flex-direction:column;gap:20px;"></div>
+
+              <!-- Cumulative summary -->
+              <div class="summary-box page-break-avoid" style="margin-top:20px;">
+                <div>
+                  <span class="summary-label">Cumulative Academic Summary</span>
+                  <div class="stat-col">
+                    <div><span class="stat-kicker">Total Units Reg.</span><span class="stat-value" id="doc-total-cu">-</span></div>
+                    <div><span class="stat-kicker">Units Passed</span><span class="stat-value brand" id="doc-passed-cu">-</span></div>
+                    <div><span class="stat-kicker">Total Quality Points</span><span class="stat-value" id="doc-total-qp">-</span></div>
+                  </div>
+                </div>
+                <div style="text-align:right;">
+                  <span class="summary-label">Cumulative CGPA</span>
+                  <div class="cgpa-value" id="doc-cgpa">0.00</div>
+                  <span class="badge badge-status" id="doc-class-badge" style="margin-top:6px;">Distinction</span>
+                </div>
+              </div>
+
+              <!-- Legend -->
+              <div class="doc-legend page-break-avoid">
+                <div><span class="strong">NBTE 4.0:</span> A(4.0) AB(3.5) B(3.25) BC(3.0) C(2.75) CD(2.5) D(2.25) E(2.0) F(0.0)</div>
+                <div class="mono">Auth Hash: <span id="doc-auth-hash">FPI-SEC-VALID</span></div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===================== -->
+      <!-- SCREEN: ADMISSION SCREENING -->
+      <!-- ===================== -->
+      <section id="screen-screening" class="hidden">
+        <div class="card">
+          <div class="card-accent"></div>
+          <div class="card-pad">
+
+            <h2 style="margin:0 0 6px;font-size:22px;font-weight:700;">JAMB &amp; WAEC Admission Screener</h2>
+            <p class="muted small" style="margin:0 0 24px;">Calculate your Post-UTME aggregate score and check qualification across Nigerian polytechnics and universities.</p>
+
+            <form onsubmit="handleScreeningEvaluate(event)">
+
+              <div class="grid-3">
+                <div class="field">
+                  <label class="label" for="screen-inst">Target Institution</label>
+                  <select id="screen-inst" class="select">
+                    <option value="fpi" selected>The Federal Polytechnic, Ilaro (FPI)</option>
+                    <option value="yabatech">Yaba College of Technology (YABATECH)</option>
+                    <option value="mapoly">Moshood Abiola Polytechnic (MAPOLY)</option>
+                    <option value="lasu">Lagos State University (LASU)</option>
+                    <option value="unilag">University of Lagos (UNILAG)</option>
+                  </select>
+                </div>
+
+                <div class="field">
+                  <label class="label" for="screen-course">Target Discipline</label>
+                  <select id="screen-course" class="select">
+                    <option value="COM" selected>Computer Science</option>
+                    <option value="EEE">Electrical/Electronic Engineering</option>
+                    <option value="SLT">Science Laboratory Technology (SLT)</option>
+                    <option value="ACC">Accountancy / Accounting</option>
+                    <option value="BAM">Business Administration</option>
+                    <option value="MAC">Mass Communication</option>
+                  </select>
+                </div>
+
+                <div class="field">
+                  <label class="label" for="screen-sittings">Sittings Count</label>
+                  <select id="screen-sittings" class="select">
+                    <option value="1" selected>1 Sitting (Single WAEC/NECO)</option>
+                    <option value="2">2 Sittings (Combined)</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="card" style="padding:16px 18px;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:14px;margin:4px 0 20px;">
+                <div>
+                  <p style="margin:0;font-size:13px;font-weight:700;color:var(--text-soft);text-transform:uppercase;letter-spacing:.05em;">UTME / JAMB Score (0 - 400)</p>
+                  <p class="muted xs" style="margin:2px 0 0;">Enter your official UTME score</p>
+                </div>
+                <input type="number" id="screen-jamb" min="0" max="400" value="220" required
+                  style="width:120px;text-align:center;font-size:20px;font-weight:700;font-family:var(--font-mono);" class="input">
+              </div>
+
+              <!-- O'Level subjects -->
+              <div style="margin-bottom:20px;">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+                  <label class="label" style="margin:0;">O'Level Subjects &amp; Grades (WAEC/NECO)</label>
+                  <span class="muted xs">Provide 5 relevant subjects</span>
+                </div>
+
+                <div class="olevel-row">
+                  <input type="text" value="English Language" readonly class="input">
+                  <select id="ol-g1" class="select">
+                    <option value="A1">A1 (10)</option><option value="B2" selected>B2 (9)</option><option value="B3">B3 (8)</option><option value="C4">C4 (7)</option><option value="C5">C5 (6)</option><option value="C6">C6 (5)</option><option value="D7">D7 (0)</option>
+                  </select>
+                </div>
+
+                <div class="olevel-row">
+                  <input type="text" value="Mathematics" readonly class="input">
+                  <select id="ol-g2" class="select">
+                    <option value="A1" selected>A1 (10)</option><option value="B2">B2 (9)</option><option value="B3">B3 (8)</option><option value="C4">C4 (7)</option><option value="C5">C5 (6)</option><option value="C6">C6 (5)</option><option value="D7">D7 (0)</option>
+                  </select>
+                </div>
+
+                <div class="olevel-row">
+                  <select id="ol-s3" class="select">
+                    <option value="Physics" selected>Physics</option><option value="Economics">Economics</option><option value="Literature in English">Literature in English</option>
+                  </select>
+                  <select id="ol-g3" class="select olevel-grade">
+                    <option value="A1">A1 (10)</option><option value="B2">B2 (9)</option><option value="B3" selected>B3 (8)</option><option value="C4">C4 (7)</option>
+                  </select>
+                </div>
+
+                <div class="olevel-row">
+                  <select id="ol-s4" class="select">
+                    <option value="Chemistry" selected>Chemistry</option><option value="Biology">Biology</option><option value="Financial Accounting">Financial Accounting</option><option value="Government">Government</option>
+                  </select>
+                  <select id="ol-g4" class="select olevel-grade">
+                    <option value="A1">A1 (10)</option><option value="B2" selected>B2 (9)</option><option value="B3">B3 (8)</option><option value="C4">C4 (7)</option>
+                  </select>
+                </div>
+
+                <div class="olevel-row">
+                  <select id="ol-s5" class="select">
+                    <option value="Further Mathematics">Further Mathematics</option><option value="Biology" selected>Biology</option><option value="Economics">Economics</option><option value="Commerce">Commerce</option>
+                  </select>
+                  <select id="ol-g5" class="select olevel-grade">
+                    <option value="A1">A1 (10)</option><option value="B2">B2 (9)</option><option value="B3">B3 (8)</option><option value="C4" selected>C4 (7)</option>
+                  </select>
+                </div>
+              </div>
+
+              <button type="submit" class="btn btn-primary btn-lg" style="width:100%;">
+                <i class="fa-solid fa-chart-line"></i>
+                Evaluate Admission Eligibility
+              </button>
+            </form>
+
+            <!-- Report -->
+            <div id="screen-report-card" class="hidden" style="margin-top:28px;padding-top:24px;border-top:1px solid var(--border);display:flex;flex-direction:column;gap:20px;"></div>
+
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <!-- ================================================================ -->
+  <!-- AUTH MODAL (login only — a layer, not the whole programme) -->
+  <!-- ================================================================ -->
+  <div id="auth-backdrop" class="backdrop hidden" onclick="closeAuthModal()"></div>
+
+  <div class="modal hidden" id="auth-modal">
+    <div class="modal-card" onclick="event.stopPropagation()">
+      <!-- 2-layer header -->
+      <div class="modal-header">
+        <div class="modal-icon"><i class="fa-solid fa-user-shield"></i></div>
+        <h2 class="modal-title">Student Authentication</h2>
+        <p class="modal-subtitle">Official Academic Records Gateway</p>
+        <button class="modal-close" onclick="closeAuthModal()" aria-label="Close">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <div class="modal-body">
+
+        <!-- ============ LOGIN FORM ============ -->
+        <!-- Password-mode fields -->
+        <form id="login-form-password" onsubmit="handleLoginPassword(event)" style="display:none;">
+          <div id="login-mode-toggle">
+            <button type="button" class="mode-btn active" id="mode-password" onclick="setLoginMode('password')">
+              <i class="fa-solid fa-key"></i> Password
+            </button>
+            <button type="button" class="mode-btn" id="mode-email" onclick="setLoginMode('email')">
+              <i class="fa-solid fa-envelope"></i> Email Code
+            </button>
+          </div>
+
+          <div class="field modal-field">
+            <label class="label" for="student-matric">Matriculation Number</label>
+            <input type="text" id="student-matric" required placeholder="e.g. 2460113253" autocomplete="off" class="input mono">
+            <p class="help-text">FPI Format: 24 (Yr) 60 (School) 1 (Dept) 1 (Full-Time) 3253 (ID)</p>
+          </div>
+
+          <div class="field modal-field">
+            <label class="label" for="student-password">Password</label>
+            <input type="password" id="student-password" required placeholder="Enter your password" class="input mono">
+          </div>
+
+          <div id="login-status-box" class="alert hidden" style="margin:10px 0 4px;"></div>
+          <div id="login-error-box" class="alert hidden" style="margin-bottom:14px;"></div>
+
+          <button type="submit" id="login-btn" class="btn btn-primary btn-lg" style="width:100%;">
+            <i class="fa-solid fa-key"></i>
+            <span id="login-btn-text">Access Statement of Result</span>
+          </button>
+
+          <p class="mode-hint" id="mode-hint">Enter your matriculation number and password to sign in. Press Enter to submit.</p>
+
+          <button type="button" class="link-btn" onclick="openForgotPasswordFlow()" style="margin-top:14px;width:100%;text-align:center;border:none;background:none;cursor:pointer;color:var(--brand);font-size:13px;font-weight:600;padding:4px;">
+            <i class="fa-solid fa-arrow-right-to-bracket"></i>
+            Forgot your password?
+          </button>
+        </form>
+
+        <!-- Email-mode step 1 fields (matric only) -->
+        <form id="login-form-email" onsubmit="handleLoginEmailRequest(event)" style="display:none;">
+          <div id="login-mode-toggle">
+            <button type="button" class="mode-btn active" id="mode-password" onclick="setLoginMode('password')">
+              <i class="fa-solid fa-key"></i> Password
+            </button>
+            <button type="button" class="mode-btn" id="mode-email" onclick="setLoginMode('email')">
+              <i class="fa-solid fa-envelope"></i> Email Code
+            </button>
+          </div>
+
+          <div class="field modal-field">
+            <label class="label" for="student-matric">Matriculation Number</label>
+            <input type="text" id="student-matric" required placeholder="e.g. 2460113253" autocomplete="off" class="input mono">
+            <p class="help-text">FPI Format: 24 (Yr) 60 (School) 1 (Dept) 1 (Full-Time) 3253 (ID)</p>
+          </div>
+
+          <div id="login-status-box" class="alert hidden" style="margin:10px 0 4px;"></div>
+          <div id="login-error-box" class="alert hidden" style="margin-bottom:14px;"></div>
+
+          <button type="submit" id="login-btn" class="btn btn-primary btn-lg" style="width:100%;">
+            <i class="fa-solid fa-envelope"></i>
+            <span id="login-btn-text">Send Verification Code</span>
+          </button>
+
+          <p class="mode-hint" id="mode-hint">Enter your matriculation number to receive a one-time code by email. Press Enter to send it.</p>
+
+          <button type="button" class="link-btn" onclick="openForgotPasswordFlow()" style="margin-top:14px;width:100%;text-align:center;border:none;background:none;cursor:pointer;color:var(--brand);font-size:13px;font-weight:600;padding:4px;">
+            <i class="fa-solid fa-arrow-right-to-bracket"></i>
+            Forgot your password?
+          </button>
+        </form>
+
+        <!-- Email-mode step 2 fields (token only; matric is hidden but no longer required) -->
+        <form id="login-form-token" onsubmit="handleLoginEmailVerify(event)" style="display:none;">
+          <div id="login-mode-toggle">
+            <button type="button" class="mode-btn active" id="mode-password" onclick="setLoginMode('password')">
+              <i class="fa-solid fa-key"></i> Password
+            </button>
+            <button type="button" class="mode-btn" id="mode-email" onclick="setLoginMode('email')">
+              <i class="fa-solid fa-envelope"></i> Email Code
+            </button>
+          </div>
+
+          <div class="field modal-field">
+            <label class="label" for="student-token">Verification Code</label>
+            <input type="text" id="student-token" required placeholder="Enter the code sent to your email" class="input mono">
+            <p class="help-text">Check your inbox (or spam) for the 6‑digit code.</p>
+          </div>
+
+          <div id="login-status-box" class="alert hidden" style="margin:10px 0 4px;"></div>
+          <div id="login-error-box" class="alert hidden" style="margin-bottom:14px;"></div>
+
+          <button type="submit" id="login-btn" class="btn btn-primary btn-lg" style="width:100%;">
+            <i class="fa-solid fa-key"></i>
+            <span id="login-btn-text">Verify Code</span>
+          </button>
+
+          <p class="mode-hint" id="mode-hint">Enter the verification code sent to your email. Press Enter to verify.</p>
+
+          <button type="button" class="link-btn" onclick="openForgotPasswordFlow()" style="margin-top:14px;width:100%;text-align:center;border:none;background:none;cursor:pointer;color:var(--brand);font-size:13px;font-weight:600;padding:4px;">
+            <i class="fa-solid fa-arrow-right-to-bracket"></i>
+            Forgot your password?
+          </button>
+        </form>
+
+        <!-- ============ FORGOT / RESET PASSWORD FLOW ============ -->
+        <div id="reset-flow" class="hidden" style="margin-top:18px;padding-top:18px;border-top:1px solid var(--border);display:flex;flex-direction:column;gap:12px;">
+
+          <!-- Step A: request a reset code -->
+          <div id="reset-step-request">
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px;">
+              <span class="strong uppercase xs" style="color:var(--text-soft);letter-spacing:.08em;">Reset Password</span>
+              <span class="badge" id="reset-step-badge">Step 1 of 2</span>
+            </div>
+            <p class="muted small" style="margin:0;">Enter your matriculation number. A one-time reset code will be sent to the email on file.</p>
+
+            <form onsubmit="handleResetRequest(event)">
+              <div class="field" style="margin-top:12px;">
+                <label class="label" for="reset-matric">Matriculation Number</label>
+                <input type="text" id="reset-matric" required placeholder="e.g. 2460113253" class="input mono">
+              </div>
+
+              <div id="reset-request-error" class="alert hidden" style="margin-top:8px;"></div>
+              <div id="reset-request-status" class="alert hidden" style="margin-top:8px;color:var(--text-soft);"></div>
+
+              <div style="display:flex;gap:10px;margin-top:12px;">
+                <button type="button" class="btn btn-ghost" onclick="cancelForgotPasswordFlow()" style="flex:1;">Cancel</button>
+                <button type="submit" id="reset-request-btn" class="btn btn-primary" style="flex:2;">
+                  <i class="fa-solid fa-envelope"></i>
+                  Send Reset Code
+                </button>
+              </div>
+            </form>
+          </div>
+
+          <!-- Step B: enter code + new password -->
+          <div id="reset-step-verify" class="hidden">
+            <p class="muted small" style="margin:0;">Enter the reset code sent to your email, then choose a new password.</p>
+
+            <form onsubmit="handleResetVerify(event)">
+              <div class="field" style="margin-top:8px;">
+                <label class="label" for="reset-token">Reset Code</label>
+                <input type="text" id="reset-token" required placeholder="Enter the 6-digit code" class="input mono">
+              </div>
+
+              <div class="field" style="margin-top:12px;">
+                <label class="label" for="reset-new-password">New Password</label>
+                <input type="password" id="reset-new-password" required placeholder="At least 6 characters" class="input mono">
+              </div>
+
+              <div class="field" style="margin-top:12px;">
+                <label class="label" for="reset-confirm-password">Confirm New Password</label>
+                <input type="password" id="reset-confirm-password" required placeholder="Repeat new password" class="input mono">
+              </div>
+
+              <div id="reset-verify-error" class="alert hidden" style="margin-top:8px;"></div>
+
+              <div style="display:flex;gap:10px;margin-top:12px;">
+                <button type="button" class="btn btn-ghost" onclick="cancelForgotPasswordFlow()" style="flex:1;">Back</button>
+                <button type="submit" id="reset-verify-btn" class="btn btn-primary" style="flex:2;">
+                  <i class="fa-solid fa-pen-to-square"></i>
+                  Reset Password
+                </button>
+              </div>
+            </form>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Theme toggle -->
+  <button class="theme-toggle no-print" id="theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme">
+    <i class="fa-solid fa-sun" id="theme-icon"></i>
+  </button>
+
+  <!-- ================================================================ -->
+  <!-- SCRIPT LOGIC -->
+  <!-- ================================================================ -->
+  <script>
+    // ------------------- Theme changer -------------------
+    function toggleTheme() {
+      var isDark = document.documentElement.classList.toggle('dark');
+      localStorage.setItem('fpi_theme', isDark ? 'dark' : 'light');
+      document.getElementById('theme-icon').className = isDark ? 'fa-solid fa-moon' : 'fa-solid fa-sun';
+    }
+
+    // ------------------- Screen switching (side nav) -------------------
+    function setActiveNav(featureId) {
+      ['checker', 'screening'].forEach(function (f) {
+        var btn = document.getElementById('nav-' + f);
+        if (btn) btn.classList.remove('active');
+      });
+      var active = document.getElementById('nav-' + featureId);
+      if (active) active.classList.add('active');
+    }
+
+    function openScreen(featureId) {
+      document.getElementById('screen-checker').classList.add('hidden');
+      document.getElementById('screen-screening').classList.add('hidden');
+      document.getElementById('screen-' + featureId).classList.remove('hidden');
+      setActiveNav(featureId);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // ------------------- Auth modal mode state -------------------
+    var CURRENT_LOGIN_MODE = 'password'; // 'password' | 'email'
+    var EMAIL_STEP = 'request';        // 'request' (step 1) | 'verify' (step 2)
+
+    /**
+     * Chooses which login <form> is visible based on the selected mode
+     * and the current email-step.
+     *
+     *   password mode       -> login-form-password (matric + password)
+     *   email mode, step 1  -> login-form-email  (matric only)
+     *   email mode, step 2  -> login-form-token  (token only)
+     */
+    function setLoginMode(mode) {
+      CURRENT_LOGIN_MODE = mode;
+
+      var passwordBtn = document.getElementById('mode-password');
+      var emailBtn = document.getElementById('mode-email');
+      passwordBtn.classList.toggle('active', mode === 'password');
+      emailBtn.classList.toggle('active', mode === 'email');
+
+      var statusBox = document.getElementById('login-status-box');
+      var errorBox = document.getElementById('login-error-box');
+      var hint = document.getElementById('mode-hint');
+
+      // Reset the visible fields when switching modes
+      var matricInput = document.getElementById('student-matric');
+      var passInput = document.getElementById('student-password');
+      var tokenInput = document.getElementById('student-token');
+
+      matricInput.value = '';
+      passInput.value = '';
+      tokenInput.value = '';
+
+      if (mode === 'password') {
+        // Password mode always uses the matric+password form.
+        showLoginForm('password');
+        statusBox.classList.add('hidden');
+        statusBox.style.color = '';
+        hint.textContent = 'Enter your matriculation number and password to sign in. Press Enter to submit.';
+      } else {
+        // Email mode: step 1 unless we already moved to step 2.
+        EMAIL_STEP = 'request';
+        showLoginForm('email');
+        statusBox.classList.add('hidden');
+        statusBox.style.color = '';
+        hint.textContent = 'Enter your matriculation number to receive a one-time code by email. Press Enter to send it.';
+      }
+
+      errorBox.classList.add('hidden');
+      errorBox.style.color = '';
+    }
+
+    /**
+     * Show exactly one of the three login forms and hide the other two.
+     * Only the visible form's required fields exist for the browser's
+     * native validation, so hidden required fields never trigger the
+     * "invalid form control not focusable" warning.
+     */
+    function showLoginForm(which) {
+      var forms = {
+        password: document.getElementById('login-form-password'),
+        email:    document.getElementById('login-form-email'),
+        token:    document.getElementById('login-form-token')
+      };
+
+      Object.keys(forms).forEach(function (key) {
+        var f = forms[key];
+        if (!f) return;
+        // Only the chosen form is displayed as a block; the others are display:none.
+        f.style.display = (key === which) ? 'block' : 'none';
+      });
+
+      // Ensure the shared inputs are cleared appropriately.
+      if (which === 'token') {
+        // In token-step we keep the matric value in case the user goes back,
+        // but the visible form only contains the token input.
+        return;
+      }
+
+      // For password and email-request forms, clear both matric and password/token.
+      var matric = document.getElementById('student-matric');
+      var pass = document.getElementById('student-password');
+      var token = document.getElementById('student-token');
+      if (matric) matric.value = '';
+      if (pass) pass.value = '';
+      if (token) token.value = '';
+    }
+
+    function getVisibleLoginForm() {
+      if (CURRENT_LOGIN_MODE === 'password') return document.getElementById('login-form-password');
+      if (EMAIL_STEP === 'verify')        return document.getElementById('login-form-token');
+      return document.getElementById('login-form-email');
+    }
+
+    function getVisibleLoginFormBtnText() {
+      if (CURRENT_LOGIN_MODE === 'password') return 'Access Statement of Result';
+      if (EMAIL_STEP === 'verify')        return 'Verify Code';
+      return 'Send Verification Code';
+    }
+
+    // ------------------- Auth modal -------------------
+    function openAuthModal() {
+      // Default to password mode, step 1
+      CURRENT_LOGIN_MODE = 'password';
+      EMAIL_STEP = 'request';
+      setLoginMode('password');
+
+      document.getElementById('student-matric').value = '';
+      document.getElementById('student-password').value = '';
+      document.getElementById('student-token').value = '';
+
+      document.getElementById('auth-backdrop').classList.remove('hidden');
+      document.getElementById('auth-modal').classList.remove('hidden');
+
+      // Focus the matric input in the visible password form
+      var matricInput = document.getElementById('student-matric');
+      if (matricInput) matricInput.focus();
+    }
+
+    function closeAuthModal() {
+      document.getElementById('auth-backdrop').classList.add('hidden');
+      document.getElementById('auth-modal').classList.add('hidden');
+    }
+
+    /**
+     * Global Enter-key handler.
+     * When the modal is open and the user presses Enter, we drive the
+     * visible login form's submit. Because each visible form only
+     * contains the fields relevant to that step, native validation
+     * won't hit hidden required fields.
+     */
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') {
+        var modal = document.getElementById('auth-modal');
+        if (!modal.classList.contains('hidden')) {
+          // If the active element is inside the currently visible login form,
+          // the browser will handle Enter natively — do nothing here.
+          var visibleForm = getVisibleLoginForm();
+          if (visibleForm && document.activeElement && visibleForm.contains(document.activeElement)) {
+            return;
+          }
+
+          // Enter pressed elsewhere (e.g. toggle buttons): focus the main
+          // input of the visible form and submit it.
+          if (visibleForm) {
+            if (CURRENT_LOGIN_MODE === 'password') {
+              var matricInput = document.getElementById('student-matric');
+              var passInput = document.getElementById('student-password');
+              if (document.activeElement !== matricInput && document.activeElement !== passInput) {
+                if (!matricInput.value) {
+                  matricInput.focus();
+                } else if (!passInput.value) {
+                  passInput.focus();
+                } else {
+                  visibleForm.requestSubmit ? visibleForm.requestSubmit() : visibleForm.submit();
+                }
+              }
+            } else if (EMAIL_STEP === 'verify') {
+              var tokenInput = document.getElementById('student-token');
+              if (document.activeElement !== tokenInput && tokenInput) {
+                tokenInput.focus();
+                visibleForm.requestSubmit ? visibleForm.requestSubmit() : visibleForm.submit();
+              }
+            } else {
+              // email step 1
+              var matricInput = document.getElementById('student-matric');
+              if (document.activeElement !== matricInput && matricInput) {
+                matricInput.focus();
+                visibleForm.requestSubmit ? visibleForm.requestSubmit() : visibleForm.submit();
+              }
+            }
+          }
+        }
+      }
+    });
+
+    // Escape closes auth modal
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') {
+        var _modal = document.getElementById('auth-modal');
+        if (_modal && !_modal.classList.contains('hidden')) closeAuthModal();
+      }
+    });
+
+    // ------------------- Student auth & result (password mode) -------------------
+    async function handleLoginPassword(event) {
+      if (event) event.preventDefault();
+
+      var errBox = document.getElementById('login-error-box');
+      var statusBox = document.getElementById('login-status-box');
+      errBox.classList.add('hidden');
+      statusBox.classList.add('hidden');
+      statusBox.style.color = '';
+
+      var btn = document.getElementById('login-btn');
+      var btnText = document.getElementById('login-btn-text');
+      var matricInput = document.getElementById('student-matric');
+      var passInput = document.getElementById('student-password');
+
+      var matric_no = matricInput ? matricInput.value.trim() : '';
+      var password = passInput ? passInput.value : '';
+
+      if (!matric_no) {
+        errBox.textContent = 'Please enter your matriculation number.';
+        errBox.classList.remove('hidden');
+        errBox.style.color = 'var(--danger)';
+        if (matricInput) matricInput.focus();
+        return;
+      }
+      if (!password) {
+        errBox.textContent = 'Please enter your password.';
+        errBox.classList.remove('hidden');
+        errBox.style.color = 'var(--danger)';
+        if (passInput) passInput.focus();
+        return;
+      }
+
+      btn.disabled = true;
+      btnText.textContent = 'Signing in...';
+      try {
+        var res = await fetch('/api/auth/student-login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ matric_no: matric_no, password: password })
+        });
+        var data = await res.json();
+        if (!res.ok || !data.success) {
+          errBox.textContent = data.message || 'Invalid matriculation number or password.';
+          errBox.classList.remove('hidden');
+          errBox.style.color = 'var(--danger)';
+        } else {
+          renderStudentStatement(data);
+          closeAuthModal();
+        }
+      } catch (err) {
+        errBox.textContent = 'Network error.';
+        errBox.classList.remove('hidden');
+      } finally {
+        btn.disabled = false;
+        btnText.textContent = 'Access Statement of Result';
+      }
+    }
+
+    // ------------------- Student auth & result (email mode, step 1) -------------------
+    async function handleLoginEmailRequest(event) {
+      if (event) event.preventDefault();
+
+      var errBox = document.getElementById('login-error-box');
+      var statusBox = document.getElementById('login-status-box');
+      errBox.classList.add('hidden');
+      statusBox.classList.add('hidden');
+      statusBox.style.color = '';
+
+      var btn = document.getElementById('login-btn');
+      var btnText = document.getElementById('login-btn-text');
+      var matricInput = document.getElementById('student-matric');
+
+      var matric_no = matricInput ? matricInput.value.trim() : '';
+
+      if (!matric_no) {
+        errBox.textContent = 'Please enter your matriculation number.';
+        errBox.classList.remove('hidden');
+        errBox.style.color = 'var(--danger)';
+        if (matricInput) matricInput.focus();
+        return;
+      }
+
+      btn.disabled = true;
+      btnText.textContent = 'Sending code...';
+      try {
+        var res = await fetch('/api/auth/student-login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ matric_no: matric_no })
+        });
+        var data = await res.json();
+
+        if (!res.ok || !data.success) {
+          errBox.textContent = data.message || 'If the matric number exists, a verification code has been sent to the email on file.';
+          errBox.classList.remove('hidden');
+          errBox.style.color = 'var(--danger)';
+        } else if (data.needsToken) {
+          // Move to step 2 (token form)
+          EMAIL_STEP = 'verify';
+          showLoginForm('token');
+          btnText.textContent = getVisibleLoginFormBtnText();
+
+          var tokenInput = document.getElementById('student-token');
+          if (tokenInput) {
+            tokenInput.value = '';
+            tokenInput.focus();
+          }
+
+          if (data.emailHint) {
+            statusBox.textContent = 'Code sent to ' + data.emailHint;
+            statusBox.classList.remove('hidden');
+            statusBox.style.color = 'var(--text-soft)';
+          } else {
+            statusBox.textContent = 'Check your inbox (and spam) for the verification code.';
+            statusBox.classList.remove('hidden');
+            statusBox.style.color = 'var(--text-soft)';
+          }
+        } else {
+          errBox.textContent = data.message || 'Unable to send verification code.';
+          errBox.classList.remove('hidden');
+          errBox.style.color = 'var(--danger)';
+        }
+      } catch (err) {
+        errBox.textContent = 'Network error.';
+        errBox.classList.remove('hidden');
+      } finally {
+        btn.disabled = false;
+        btnText.textContent = getVisibleLoginFormBtnText();
+      }
+    }
+
+    // ------------------- Student auth & result (email mode, step 2) -------------------
+    async function handleLoginEmailVerify(event) {
+      if (event) event.preventDefault();
+
+      var errBox = document.getElementById('login-error-box');
+      var statusBox = document.getElementById('login-status-box');
+      errBox.classList.add('hidden');
+      statusBox.classList.add('hidden');
+      statusBox.style.color = '';
+
+      var btn = document.getElementById('login-btn');
+      var btnText = document.getElementById('login-btn-text');
+      var tokenInput = document.getElementById('student-token');
+
+      var token = tokenInput ? tokenInput.value.trim() : '';
+      var matricInput = document.getElementById('student-matric');
+      var matric_no = matricInput ? matricInput.value.trim() : '';
+
+      if (!token) {
+        errBox.textContent = 'Please enter the verification code.';
+        errBox.classList.remove('hidden');
+        errBox.style.color = 'var(--danger)';
+        if (tokenInput) tokenInput.focus();
+        return;
+      }
+
+      btn.disabled = true;
+      btnText.textContent = 'Verifying...';
+      try {
+        var res = await fetch('/api/auth/student-login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ matric_no: matric_no, token: token })
+        });
+        var data = await res.json();
+        if (!res.ok || !data.success) {
+          errBox.textContent = data.message || 'Invalid or expired code.';
+          errBox.classList.remove('hidden');
+          errBox.style.color = 'var(--danger)';
+        } else {
+          renderStudentStatement(data);
+          closeAuthModal();
+        }
+      } catch (err) {
+        errBox.textContent = 'Network error.';
+        errBox.classList.remove('hidden');
+      } finally {
+        btn.disabled = false;
+        btnText.textContent = 'Access Statement of Result';
+      }
+    }
+
+    // ------------------- Forgot / reset password flow -------------------
+    var RESET_FLOW_STATE = 'request'; // 'request' | 'verify'
+
+    function openForgotPasswordFlow() {
+      RESET_FLOW_STATE = 'request';
+
+      // Hide all three login forms while the reset flow is open
+      ['login-form-password', 'login-form-email', 'login-form-token'].forEach(function (id) {
+        var f = document.getElementById(id);
+        if (f) f.style.display = 'none';
+      });
+
+      // Hide the login submit button (not needed while reset flow is active)
+      var loginBtn = document.getElementById('login-btn');
+      if (loginBtn) loginBtn.style.display = 'none';
+
+      document.getElementById('reset-flow').classList.remove('hidden');
+      document.getElementById('reset-step-request').classList.remove('hidden');
+      document.getElementById('reset-step-verify').classList.add('hidden');
+
+      document.getElementById('reset-matric').value = '';
+      document.getElementById('reset-token').value = '';
+      document.getElementById('reset-new-password').value = '';
+      document.getElementById('reset-confirm-password').value = '';
+
+      hideResetErrors();
+      var resetMatric = document.getElementById('reset-matric');
+      if (resetMatric) resetMatric.focus();
+    }
+
+    function cancelForgotPasswordFlow() {
+      document.getElementById('reset-flow').classList.add('hidden');
+      hideResetErrors();
+
+      // Restore the appropriate login form for the current mode
+      showLoginForm(CURRENT_LOGIN_MODE === 'password' ? 'password' : 'email');
+
+      // Restore the login button label for the visible form
+      var loginBtn = document.getElementById('login-btn');
+      if (loginBtn) {
+        loginBtn.style.display = '';
+        var btnText = document.getElementById('login-btn-text');
+        if (btnText) btnText.textContent = getVisibleLoginFormBtnText();
+      }
+
+      var modal = document.getElementById('auth-modal');
+      if (modal && !modal.classList.contains('hidden')) {
+        var focusTarget = document.getElementById('student-matric');
+        if (focusTarget) focusTarget.focus();
+      }
+    }
+
+    function hideResetErrors() {
+      var boxes = [
+        document.getElementById('reset-request-error'),
+        document.getElementById('reset-request-status'),
+        document.getElementById('reset-verify-error')
+      ];
+      boxes.forEach(function (box) {
+        if (!box) return;
+        box.classList.add('hidden');
+        box.style.color = '';
+        box.textContent = '';
+      });
+    }
+
+    function showResetError(boxId, message, isStatus) {
+      var box = document.getElementById(boxId);
+      if (!box) return;
+      box.textContent = message;
+      box.classList.remove('hidden');
+      box.style.color = isStatus ? 'var(--text-soft)' : 'var(--danger)';
+    }
+
+    async function handleResetRequest(event) {
+      if (event) event.preventDefault();
+      hideResetErrors();
+
+      var matricInput = document.getElementById('reset-matric');
+      var matric = matricInput ? matricInput.value.trim() : '';
+      if (!matric) {
+        showResetError('reset-request-error', 'Please enter your matriculation number.');
+        if (matricInput) matricInput.focus();
+        return;
+      }
+
+      var btn = document.getElementById('reset-request-btn');
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Sending...';
+
+      try {
+        var res = await fetch('/api/auth/forgot-password', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ matric_no: matric })
+        });
+        var data = await res.json();
+
+        if (!res.ok || !data.success) {
+          showResetError('reset-request-error', data.message || 'Unable to send reset code. Please try again.');
+        } else {
+          RESET_FLOW_STATE = 'verify';
+          document.getElementById('reset-step-request').classList.add('hidden');
+          document.getElementById('reset-step-verify').classList.remove('hidden');
+
+          var statusBox = document.getElementById('reset-request-status');
+          if (data.emailHint) {
+            showResetError('reset-request-status', 'Reset code sent to ' + data.emailHint, true);
+          } else {
+            showResetError('reset-request-status', 'Check your inbox (and spam) for the reset code.', true);
+          }
+
+          var tokenInput = document.getElementById('reset-token');
+          if (tokenInput) {
+            tokenInput.value = '';
+            tokenInput.focus();
+          }
+        }
+      } catch (err) {
+        showResetError('reset-request-error', 'Network error. Please try again.');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fa-solid fa-envelope"></i> Send Reset Code';
+      }
+    }
+
+    async function handleResetVerify(event) {
+      if (event) event.preventDefault();
+      hideResetErrors();
+
+      var tokenInput = document.getElementById('reset-token');
+      var newPassInput = document.getElementById('reset-new-password');
+      var confirmInput = document.getElementById('reset-confirm-password');
+      var matricInput = document.getElementById('reset-matric');
+
+      var token = tokenInput ? tokenInput.value.trim() : '';
+      var newPass = newPassInput ? newPassInput.value : '';
+      var confirmPass = confirmInput ? confirmInput.value : '';
+      var matric = matricInput ? matricInput.value.trim() : '';
+
+      if (!token) {
+        showResetError('reset-verify-error', 'Please enter the reset code.');
+        if (tokenInput) tokenInput.focus();
+        return;
+      }
+      if (!newPass) {
+        showResetError('reset-verify-error', 'Please enter a new password.');
+        if (newPassInput) newPassInput.focus();
+        return;
+      }
+      if (newPass.length < 6) {
+        showResetError('reset-verify-error', 'New password must be at least 6 characters.');
+        if (newPassInput) newPassInput.focus();
+        return;
+      }
+      if (newPass !== confirmPass) {
+        showResetError('reset-verify-error', 'The new passwords do not match.');
+        if (confirmInput) confirmInput.focus();
+        return;
+      }
+
+      var btn = document.getElementById('reset-verify-btn');
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Resetting...';
+
+      try {
+        var res = await fetch('/api/auth/reset-password', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ matric_no: matric, token: token, new_password: newPass })
+        });
+        var data = await res.json();
+
+        if (!res.ok || !data.success) {
+          showResetError('reset-verify-error', data.message || 'Invalid or expired reset code. Please request a new one.');
+        } else {
+          // Success — collapse reset flow, restore login form, show success on login
+          document.getElementById('reset-flow').classList.add('hidden');
+          showLoginForm(CURRENT_LOGIN_MODE === 'password' ? 'password' : 'email');
+
+          var loginBtn = document.getElementById('login-btn');
+          if (loginBtn) {
+            loginBtn.style.display = '';
+            var span = loginBtn.querySelector('span');
+            if (span) span.textContent = getVisibleLoginFormBtnText();
+          }
+
+          var loginErrBox = document.getElementById('login-error-box');
+          loginErrBox.textContent = 'Password reset successful. You can now log in with your new password.';
+          loginErrBox.classList.remove('hidden');
+          loginErrBox.style.color = 'var(--success)';
+
+          var matricField = document.getElementById('student-matric');
+          if (matricField) matricField.value = matric;
+          var passField = document.getElementById('student-password');
+          if (passField) passField.value = '';
+          setLoginMode('password');
+          if (passField) passField.focus();
+        }
+      } catch (err) {
+        showResetError('reset-verify-error', 'Network error. Please try again.');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fa-solid fa-pen-to-square"></i> Reset Password';
+      }
+    }
+
+    // Semester table builder
+    var SEM_TABLE_TEMPLATE = function (sem) {
+      var rows = '';
+      (sem.courses || []).forEach(function (c, idx) {
+        rows += '<tr>' +
+          '<td class="muted mono" style="text-align:center;">' + (idx + 1) + '</td>' +
+          '<td class="mono strong">' + c.course_code + '</td>' +
+          '<td class="soft">' + c.course_title + '</td>' +
+          '<td class="center mono">' + c.credit_unit + '</td>' +
+          '<td class="center mono strong">' + c.score + '%</td>' +
+          '<td class="center"><span class="badge badge-brand">' + c.grade + '</span></td>' +
+          '<td class="center mono soft">' + Number(c.grade_point).toFixed(2) + '</td>' +
+          '<td class="center mono strong">' + Number(c.quality_point).toFixed(2) + '</td>' +
+          '</tr>';
+      });
+
+      return '<div class="card page-break-avoid" style="overflow:hidden;">' +
+        '<div style="display:flex;justify-content:space-between;align-items:center;padding:12px 16px;background:var(--surface-2);border-bottom:1px solid var(--border);">' +
+          '<span class="strong uppercase xs" style="color:var(--text);">&bull; ' + sem.semester + '</span>' +
+          '<span class="badge" style="background:var(--brand);color:#fff;">GPA: ' + Number(sem.gpa).toFixed(2) + '</span>' +
+        '</div>' +
+        '<div class="table-wrap"><table class="table">' +
+          '<thead><tr><th style="text-align:center;">#</th><th>Course</th><th>Title</th><th class="center">CU</th><th class="center">Score</th><th class="center">Grade</th><th class="center">GP</th><th class="center">QP</th></tr></thead>' +
+          '<tbody>' + rows + '</tbody>' +
+          '<tfoot><tr style="background:var(--surface-2);">' +
+            '<td colspan="4" class="right"><span class="uppercase xs muted">Semester Totals:</span></td>' +
+            '<td class="center strong mono">' + sem.totalCreditUnits + ' CU</td>' +
+            '<td class="center strong" style="color:var(--brand)">' + sem.totalUnitsPassed + ' Passed</td>' +
+            '<td colspan="2" class="center strong mono" style="text-align:center;">' + Number(sem.totalQualityPoints).toFixed(2) + '</td>' +
+          '</tr></tfoot>' +
+        '</table></div>' +
+      '</div>';
+    };
+
+    function renderStudentStatement(data) {
+      var student = data.student || {};
+      var summary = data.summary || {};
+      var semesters = data.semesters || [];
+
+      document.getElementById('doc-name').textContent = student.full_name || 'N/A';
+      document.getElementById('doc-matric').textContent = student.matric_no || 'N/A';
+      document.getElementById('doc-school').textContent = student.school || 'School of Pure and Applied Sciences';
+      document.getElementById('doc-dept').textContent = student.department || 'Computer Science';
+      document.getElementById('doc-prog').textContent = (student.programme || 'National Diploma') + ' (' + (student.level || 'ND 1') + ')';
+      document.getElementById('doc-session').textContent = student.academic_session || '2024/2025';
+      document.getElementById('doc-auth-hash').textContent = 'FPI-' + (student.matric_no || '').replace(/[^a-zA-Z0-9]/g, '') + '-' + Date.now().toString(36).toUpperCase();
+
+      document.getElementById('doc-total-cu').textContent = summary.totalCreditUnits || '0';
+      document.getElementById('doc-passed-cu').textContent = summary.totalUnitsPassed || '0';
+      document.getElementById('doc-total-qp').textContent = Number(summary.totalQualityPoints || 0).toFixed(2);
+      document.getElementById('doc-cgpa').textContent = Number(summary.cgpa || 0).toFixed(2);
+      document.getElementById('doc-class-badge').textContent = summary.classification || 'N/A';
+
+      var container = document.getElementById('doc-semesters-container');
+      container.innerHTML = '';
+      semesters.forEach(function (sem) {
+        container.insertAdjacentHTML('beforeend', SEM_TABLE_TEMPLATE(sem));
+      });
+
+      // Landing -> full statement page
+      document.getElementById('checker-landing').classList.add('hidden');
+      document.getElementById('checker-statement-box').classList.remove('hidden');
+      openScreen('checker');
+    }
+
+    function returnToStudentLogin() {
+      document.getElementById('checker-statement-box').classList.add('hidden');
+      document.getElementById('checker-landing').classList.remove('hidden');
+    }
+
+    // ------------------- Admission screening -------------------
+    async function handleScreeningEvaluate(event) {
+      if (event) event.preventDefault();
+
+      var jambScore = Number(document.getElementById('screen-jamb').value) || 0;
+      var sittings = Number(document.getElementById('screen-sittings').value) || 1;
+      var targetInstitutionId = document.getElementById('screen-inst').value;
+      var targetCourseCode = document.getElementById('screen-course').value;
+
+      var olevelSubjects = [
+        { subject: 'English Language', grade: document.getElementById('ol-g1').value },
+        { subject: 'Mathematics', grade: document.getElementById('ol-g2').value },
+        { subject: document.getElementById('ol-s3').value, grade: document.getElementById('ol-g3').value },
+        { subject: document.getElementById('ol-s4').value, grade: document.getElementById('ol-g4').value },
+        { subject: document.getElementById('ol-s5').value, grade: document.getElementById('ol-g5').value }
+      ];
+
+      try {
+        var res = await fetch('/api/screening/evaluate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            jambScore: jambScore,
+            olevelSubjects: olevelSubjects,
+            sittings: sittings,
+            targetCourseCode: targetCourseCode,
+            targetInstitutionId: targetInstitutionId
+          })
+        });
+        var data = await res.json();
+        if (!res.ok || !data.success) throw new Error(data.message);
+        renderScreeningReport(data.evaluation);
+      } catch (err) {
+        alert('Screening error: ' + err.message);
+      }
+    }
+
+    function renderScreeningReport(evaluation) {
+      var primary = evaluation.primaryChoice;
+      var alternatives = evaluation.eligibleAlternatives || [];
+      var reportBox = document.getElementById('screen-report-card');
+      reportBox.classList.remove('hidden');
+
+      var statusBorder = primary.course.isQualified ? 'var(--success-border)' :
+        (primary.course.isCompetitive ? '#fde68a' : 'var(--danger-border)');
+      var statusBg = primary.course.isQualified ? 'var(--success-bg)' :
+        (primary.course.isCompetitive ? '#fffbeb' : 'var(--danger-bg)');
+
+      var altRows = '';
+      alternatives.forEach(function (alt) {
+        altRows += '<div class="card" style="padding:12px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px;">' +
+          '<div><span class="strong" style="font-size:13px;">' + alt.institutionShort + ' &bull; ' + alt.courseName + '</span>' +
+          '<span class="muted xs" style="display:block;">' + alt.degree + ' &bull; Benchmark: ' + alt.aggregateCutOff + '%</span></div>' +
+          '<span class="badge badge-status">' + alt.status + '</span></div>';
+      });
+
+      reportBox.innerHTML =
+        '<div class="card" style="padding:18px;border-color:' + statusBorder + ';background:' + statusBg + ';">' +
+          '<div style="display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px;margin-bottom:12px;">' +
+            '<div>' +
+              '<span class="xs uppercase muted strong" style="display:block;">Primary Choice Evaluation</span>' +
+              '<h3 style="margin:4px 0 0;font-size:16px;font-weight:700;">' + primary.institution.name + ' &bull; ' + primary.course.courseName + ' (' + primary.course.degree + ')</h3>' +
+            '</div>' +
+            '<div style="text-align:right;">' +
+              '<span class="xs uppercase muted strong" style="display:block;">Aggregate Score</span>' +
+              '<span class="mono" style="font-size:26px;font-weight:800;">' + primary.aggregateScore + '%</span>' +
+            '</div>' +
+          '</div>' +
+          '<div style="padding:12px 14px;background:var(--surface);border-radius:10px;border:1px solid var(--border);font-size:13px;">' +
+            '<div class="strong" style="display:flex;gap:8px;">Status: <span style="text-decoration:underline;">' + primary.course.statusLabel + '</span></div>' +
+            '<p style="margin:4px 0 0;" class="soft">' + primary.course.recommendationReason + '</p>' +
+          '</div>' +
+          '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:14px;padding-top:12px;border-top:1px solid var(--border);font-size:13px;">' +
+            '<div><span class="xs muted" style="display:block;">JAMB (50% pts)</span><span class="mono strong">' + primary.jambComponent + ' pts</span></div>' +
+            '<div><span class="xs muted" style="display:block;">O\'Level Points</span><span class="mono strong">' + primary.olevelPoints + ' / 50</span></div>' +
+            '<div><span class="xs muted" style="display:block;">Dept. Cut-Off</span><span class="mono strong">' + primary.course.aggregateCutOff + '%</span></div>' +
+          '</div>' +
+        '</div>' +
+        '<div><h4 class="xs strong uppercase" style="letter-spacing:.08em;color:var(--text-soft);margin:0 0 10px;">Matching Alternative Schools &amp; Courses (' + alternatives.length + ')</h4>' +
+          '<div style="display:flex;flex-direction:column;gap:8px;">' +
+            (altRows || '<p class="muted small" style="font-style:italic;">No alternative matches found for this score combination.</p>') +
+          '</div></div>';
+    }
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', function () {
+      if (document.documentElement.classList.contains('dark')) {
+        document.getElementById('theme-icon').className = 'fa-solid fa-moon';
+      }
+      openScreen('checker');
+    });
+  </script>
+</body>
+</html>

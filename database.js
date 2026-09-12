@@ -123,7 +123,7 @@ function initializeDatabase() {
   db.serialize(() => {
     db.run('PRAGMA foreign_keys = ON');
 
-    // Create students table with password and school fields
+    // Create students table with email column
     db.run(`
       CREATE TABLE IF NOT EXISTS students (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -135,6 +135,7 @@ function initializeDatabase() {
         programme TEXT NOT NULL,
         level TEXT NOT NULL,
         academic_session TEXT NOT NULL,
+        email TEXT,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP
       )
     `);
@@ -158,6 +159,26 @@ function initializeDatabase() {
     `, (err) => {
       if (!err) {
         seedDatabase();
+      }
+    });
+
+    // Create auth_tokens table for email verification
+    db.run(`
+      CREATE TABLE IF NOT EXISTS auth_tokens (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        student_id INTEGER NOT NULL,
+        token TEXT NOT NULL,
+        expires_at DATETIME NOT NULL,
+        used INTEGER DEFAULT 0,
+        FOREIGN KEY(student_id) REFERENCES students(id) ON DELETE CASCADE
+      )
+    `);
+
+    // Migration: older databases were created before the email column existed;
+    // CREATE TABLE IF NOT EXISTS does not alter existing tables, so add it here.
+    db.run('ALTER TABLE students ADD COLUMN email TEXT', (err) => {
+      if (err && !/duplicate column name/i.test(err.message)) {
+        console.error('[DB ERROR] Failed to add email column to students:', err.message);
       }
     });
   });
@@ -189,8 +210,8 @@ function seedDatabase() {
     }
 
     db.run(
-      `INSERT INTO students (matric_no, password, full_name, school, department, programme, level, academic_session)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+      `INSERT INTO students (matric_no, password, full_name, school, department, programme, level, academic_session, email)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         testStudent.matric_no,
         testStudent.password,
@@ -199,7 +220,8 @@ function seedDatabase() {
         testStudent.department,
         testStudent.programme,
         testStudent.level,
-        testStudent.academic_session
+        testStudent.academic_session,
+        null // email initially null
       ],
       function (insertErr) {
         if (insertErr) return;

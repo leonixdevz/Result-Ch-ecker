@@ -2,17 +2,22 @@
   "name": "fpi-student-result-checker",
   "version": "1.0.0",
   "description": "Student Result Checker System for Federal Polytechnic, Ilaro based on NBTE 4.0 grading scale",
-  "main": "server.js",
+  "main": "start-all.js",
   "type": "commonjs",
   "scripts": {
-    "start": "node server.js",
+    "start": "node start-all.js",
     "seed": "node database.js"
   },
   "dependencies": {
     "bcryptjs": "^3.0.3",
     "cors": "^2.8.5",
+    "dotenv": "^17.4.2",
     "express": "^4.19.2",
     "jsonwebtoken": "^9.0.3",
+    "nodemailer": "^6.9.14",
     "sqlite3": "^5.1.7"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.4"
   }
 }

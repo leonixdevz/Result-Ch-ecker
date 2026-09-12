@@ -1,0 +1,843 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Official Administration Portal • The Federal Polytechnic, Ilaro</title>
+  <!-- Eager theme init (no flash) -->
+  <script>
+    (function () {
+      var saved = localStorage.getItem('fpi_theme');
+      if (saved === 'dark' || (!saved && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+        document.documentElement.classList.add('dark');
+      }
+    })();
+  </script>
+  <!-- Fonts & icon library -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+  <link rel="stylesheet" href="/styles.css">
+  <style>
+    /* Admin-specific overrides */
+    .main { margin-left: 0; }
+    @media (min-width: 1024px) { .main { margin-left: 240px; } }
+    .content { max-width: 1200px; padding: 28px 24px 56px; }
+
+    .sidebar.mobile-open { display: flex; }
+
+    /* Content sections (sidebar-driven panels) */
+    .tab-panel { display: none; animation: fadeIn .2s ease; }
+    .tab-panel.active { display: block; }
+
+    /* Dashboard stat cards refinement */
+    .stats-grid .stat-card .val { font-size: 28px; }
+    .stat-card .stat-title i { color: var(--brand); opacity: .8; }
+
+    /* Improve roster table */
+    .table td, .table th { vertical-align: middle; }
+
+    /* Soft pill for matric */
+    .badge-matric {
+      font-family: var(--font-mono);
+      font-weight: 700;
+      background: var(--brand-soft);
+      color: var(--brand-text);
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-size: 12px;
+      border: 1px solid var(--border);
+      display: inline-block;
+    }
+
+    /* Dynamic course rows in the results uploader */
+    .crs-row .input { padding: 9px 10px; }
+
+    /* Responsive tweaks */
+    @media (max-width: 640px) {
+      .content { padding: 20px 16px 40px; }
+      .crs-row { grid-template-columns: 1fr 1fr; }
+      .crs-row .crs-title { grid-column: span 2; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- MOBILE TOP BAR (small screens only — holds menu + theme toggle) -->
+  <header class="topbar no-print">
+    <div class="topbar-brand">
+      <span>Admin Portal</span>
+    </div>
+    <div class="topbar-tabs">
+      <button id="topbar-menu-btn" class="tab-btn" onclick="toggleSidebar()"><i class="fa-solid fa-bars"></i> Menu</button>
+      <button class="theme-toggle" id="theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme" style="position:static; width:36px; height:36px; box-shadow:none; background:transparent; border:none; font-size:16px;">
+        <i class="fa-solid fa-sun" id="theme-icon"></i>
+      </button>
+    </div>
+  </header>
+
+  <!-- SIDE NAVIGATION (single source of navigation) -->
+  <aside class="sidebar" id="admin-sidebar">
+    <div class="sidebar-brand">
+      <div>
+        <div class="brand-name">Admin Portal</div>
+        <div class="brand-sub">Federal Polytechnic, Ilaro</div>
+      </div>
+    </div>
+
+    <nav class="nav-items">
+      <p class="nav-section-label">Management</p>
+      <button class="nav-item active" id="nav-dashboard" onclick="openSection('dashboard')">
+        <i class="fa-solid fa-chart-pie"></i>
+        <span>Dashboard</span>
+      </button>
+      <button class="nav-item" id="nav-students" onclick="openSection('students')">
+        <i class="fa-solid fa-users"></i>
+        <span>Students</span>
+      </button>
+      <button class="nav-item" id="nav-results" onclick="openSection('results')">
+        <i class="fa-solid fa-list-check"></i>
+        <span>Results</span>
+      </button>
+      <button class="nav-item" id="nav-settings" onclick="openSection('settings')">
+        <i class="fa-solid fa-gear"></i>
+        <span>Settings</span>
+      </button>
+    </nav>
+
+    <div style="margin-top:16px;">
+      <div style="padding:10px 12px;">
+        <button id="nav-logout-btn" class="btn btn-ghost hidden" style="width:100%;" onclick="handleAdminLogout()">
+          <i class="fa-solid fa-right-from-bracket"></i> Sign Out
+        </button>
+      </div>
+    </div>
+
+    <div class="sidebar-foot">NBTE 4.0 • Technology for Self Reliance</div>
+  </aside>
+
+  <!-- MAIN VIEW -->
+  <main class="main">
+    <div class="content">
+
+      <!-- 1. ADMIN PIN AUTHENTICATION GATE -->
+      <div id="admin-auth-view" class="hidden">
+        <div class="auth-fullscreen">
+          <div class="auth-content">
+            <div class="auth-header">
+              <div class="auth-icon"><i class="fa-solid fa-landmark"></i></div>
+              <h1 class="auth-title">Federal Polytechnic<br><span class="auth-subtitle">Ilaro Administration Portal</span></h1>
+              <p class="auth-description">Secure access to student records and academic management</p>
+            </div>
+            <div class="auth-form">
+              <form onsubmit="handleAdminAuth(event)">
+                <div class="field">
+                  <label class="label" for="admin-pin-field">Administrative Access Code</label>
+                  <input type="password" id="admin-pin-field" required placeholder="Enter your PIN" class="input mono input-lg" autocomplete="off">
+                </div>
+                <div class="badge-box">
+                  <div>
+                    <span class="muted xs" style="display:block;">Institutional Access Key:</span>
+                    <code class="mono strong auth-key" style="font-size:14px;color:var(--brand-text);">FPI-ADMIN-2026</code>
+                  </div>
+                  <i class="fa-solid fa-key" style="color:var(--brand);"></i>
+                </div>
+                <div id="admin-auth-err" class="alert hidden" style="margin-bottom:16px;"></div>
+                <button type="submit" class="btn btn-primary btn-lg btn-full">
+                  <i class="fa-solid fa-unlock"></i> Access Administration Console
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 2. OFFICIAL ADMIN CONSOLE -->
+      <div id="admin-dashboard-view" class="hidden">
+
+        <!-- ========== PANEL: DASHBOARD (analysis only) ========== -->
+        <div id="tab-dashboard" class="tab-panel active">
+          <!-- Stats row -->
+          <div class="stats-grid" style="margin-bottom:24px;">
+            <div class="card stat-card">
+              <span class="stat-title"><i class="fa-solid fa-users" style="margin-right:6px;"></i>Registered Students</span>
+              <div class="val" id="stat-student-count">0</div>
+              <div class="cap">Total on record</div>
+            </div>
+            <div class="card stat-card">
+              <span class="stat-title"><i class="fa-solid fa-book-bookmark" style="margin-right:6px;"></i>Course Records</span>
+              <div class="val" id="stat-course-count">0</div>
+              <div class="cap">Uploaded results</div>
+            </div>
+            <div class="card stat-card">
+              <span class="stat-title"><i class="fa-solid fa-chart-simple" style="margin-right:6px;"></i>Avg per Student</span>
+              <div class="val" id="stat-avg-courses">0</div>
+              <div class="cap">Courses each</div>
+            </div>
+            <div class="card stat-card">
+              <span class="stat-title"><i class="fa-solid fa-triangle-exclamation" style="margin-right:6px;"></i>No Results Yet</span>
+              <div class="val" id="stat-pending-count">0</div>
+              <div class="cap">Students awaiting upload</div>
+            </div>
+          </div>
+
+          <!-- Two-column: department breakdown + recent registrations -->
+          <div class="two-col">
+            <div class="card">
+              <div class="card-accent"></div>
+              <div class="card-pad">
+                <h3 class="section-title">Breakdown by Department</h3>
+                <div class="table-wrap">
+                  <table class="table">
+                    <thead>
+                      <tr>
+                        <th>Department</th>
+                        <th class="center">Students</th>
+                        <th class="center">Course Records</th>
+                      </tr>
+                    </thead>
+                    <tbody id="dept-table-body"></tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-accent"></div>
+              <div class="card-pad">
+                <h3 class="section-title">Recent Registrations</h3>
+                <div id="recent-list" style="display:grid;gap:10px;"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ========== PANEL: STUDENTS (registration + management) ========== -->
+        <div id="tab-students" class="tab-panel">
+
+          <!-- Register / Update Student -->
+          <div class="card" style="margin-bottom:24px;">
+            <div class="card-accent"></div>
+            <div class="card-pad">
+              <h3 class="section-title">Register / Update Student Record</h3>
+              <form onsubmit="handleRegisterStudent(event)">
+                <div class="grid-3" style="grid-template-columns:1fr 1fr;">
+                  <div class="field">
+                    <label class="label" for="reg-matric">Matriculation No *</label>
+                    <input type="text" id="reg-matric" required placeholder="2460113253" class="input mono">
+                  </div>
+                  <div class="field">
+                    <label class="label">Student Password</label>
+                    <input type="text" readonly id="reg-password" value="12345678" class="input" style="background:var(--surface-2);color:var(--text-soft);">
+                    <p class="help-text">All students use the fixed default password <span class="mono strong">12345678</span>. This cannot be changed by the admin.</p>
+                  </div>
+                </div>
+                <div class="field">
+                  <label class="label" for="reg-name">Full Student Name (Surname First) *</label>
+                  <input type="text" id="reg-name" required placeholder="ADEWALE OLUWASEUN IBRAHIM" class="input uppercase" style="text-transform:uppercase;">
+                </div>
+                <div class="field">
+                  <label class="label" for="reg-email">Email Address (for result verification) *</label>
+                  <input type="email" id="reg-email" required placeholder="student@example.com" class="input">
+                  <p class="help-text">The one‑time login code will be sent to this address when the student checks a result.</p>
+                </div>
+                <div class="grid-3" style="grid-template-columns:1fr 1fr;">
+                  <div class="field">
+                    <label class="label" for="reg-school">School</label>
+                    <select id="reg-school" class="select">
+                      <option value="School of Pure and Applied Sciences">School of Pure & Applied (60)</option>
+                      <option value="School of Engineering">School of Engineering (40)</option>
+                      <option value="School of Management Studies">School of Management Studies (20)</option>
+                      <option value="School of Environmental Studies">School of Environmental Studies (30)</option>
+                      <option value="School of Communication & Info Tech">School of Communication & IT (50)</option>
+                    </select>
+                  </div>
+                  <div class="field">
+                    <label class="label" for="reg-dept">Department</label>
+                    <input type="text" id="reg-dept" value="Computer Science" class="input">
+                  </div>
+                </div>
+                <div class="grid-3" style="grid-template-columns:1fr 1fr;">
+                  <div class="field">
+                    <label class="label" for="reg-prog">Programme & Level</label>
+                    <input type="text" id="reg-prog" value="National Diploma (ND) Full-Time" class="input">
+                  </div>
+                  <div class="field">
+                    <label class="label" for="reg-session">Academic Session</label>
+                    <input type="text" id="reg-session" value="2024/2025" class="input">
+                  </div>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width:100%;">
+                  <i class="fa-solid fa-user-plus"></i> Save Student Record
+                </button>
+              </form>
+            </div>
+          </div>
+
+          <!-- Registered Students Roster -->
+          <div class="card">
+            <div class="card-accent"></div>
+            <div class="card-pad">
+              <div class="toolbar" style="margin-bottom:16px;">
+                <h3 class="section-title" style="margin:0;">Registered Students</h3>
+                <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+                  <input type="text" id="roster-search" class="input" style="width:220px;padding:8px 12px;" placeholder="Search name / matric / dept..." oninput="renderRoster()">
+                  <button class="link-action" onclick="fetchAdminStudents()"><i class="fa-solid fa-rotate-right"></i> Refresh</button>
+                </div>
+              </div>
+              <div class="table-wrap">
+                <table class="table">
+                  <thead>
+                    <tr>
+                      <th>Matric No</th>
+                      <th>Full Name</th>
+                      <th>School & Department</th>
+                      <th class="center">Courses</th>
+                      <th class="right">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="admin-table-body"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ========== PANEL: RESULTS (upload + manage results) ========== -->
+        <div id="tab-results" class="tab-panel">
+
+          <!-- Batch course upload -->
+          <div class="card" style="margin-bottom:24px;">
+            <div class="card-accent"></div>
+            <div class="card-pad">
+              <h3 class="section-title">Upload Semester Results</h3>
+              <p class="muted small" style="margin-top:-6px;margin-bottom:16px;">Add course rows for the student below. Grades and grade points are computed automatically on the NBTE 4.0 scale.</p>
+              <form onsubmit="handleBatchCourses(event)">
+                <div class="grid-3" style="grid-template-columns:1fr 1fr;">
+                  <div class="field">
+                    <label class="label" for="res-matric">Student Matric No *</label>
+                    <input type="text" id="res-matric" required placeholder="2460113253" class="input mono">
+                  </div>
+                  <div class="field">
+                    <label class="label" for="crs-sem">Semester</label>
+                    <select id="crs-sem" class="select">
+                      <option value="ND 1 First Semester">ND 1 First Semester</option>
+                      <option value="ND 1 Second Semester">ND 1 Second Semester</option>
+                      <option value="ND 2 First Semester">ND 2 First Semester</option>
+                      <option value="ND 2 Second Semester">ND 2 Second Semester</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div style="display:grid;grid-template-columns:1.2fr 2fr .6fr .6fr auto;gap:8px;margin-bottom:6px;">
+                  <span class="label" style="margin:0;">Code</span>
+                  <span class="label" style="margin:0;">Course Title</span>
+                  <span class="label" style="margin:0;text-align:center;">CU</span>
+                  <span class="label" style="margin:0;text-align:center;">Score</span>
+                  <span></span>
+                </div>
+                <div id="course-rows"></div>
+
+                <div style="display:flex;gap:10px;margin-top:14px;flex-wrap:wrap;">
+                  <button type="button" class="btn btn-ghost" onclick="addCourseRow()"><i class="fa-solid fa-plus"></i> Add Course Row</button>
+                  <button type="submit" class="btn btn-primary"><i class="fa-solid fa-cloud-arrow-up"></i> Upload Course Grades</button>
+                </div>
+              </form>
+            </div>
+          </div>
+
+          <!-- View / manage a student's uploaded results -->
+          <div class="card">
+            <div class="card-accent"></div>
+            <div class="card-pad">
+              <h3 class="section-title">View Student Results</h3>
+              <div class="toolbar" style="margin:12px 0 16px;">
+                <input type="text" id="view-matric" class="input mono" style="width:220px;" placeholder="Matric No e.g. 2460113253">
+                <button class="btn btn-ghost btn-sm" onclick="loadStudentResults()"><i class="fa-solid fa-magnifying-glass"></i> Load Results</button>
+              </div>
+              <div id="student-results-box"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ========== PANEL: SETTINGS ========== -->
+        <div id="tab-settings" class="tab-panel">
+          <div class="card">
+            <div class="card-pad-lg">
+              <h2 class="section-title" style="margin:0 0 10px;">Settings</h2>
+              <p class="muted small" style="margin-bottom:20px;">Configure system settings and preferences.</p>
+              <div style="display:grid; gap:16px; max-width:480px;">
+                <div class="field" style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border); padding-bottom:12px;">
+                  <span class="label" style="margin:0;">Dark Mode</span>
+                  <button class="theme-toggle" style="position:static; width:40px; height:40px; box-shadow:none;" onclick="toggleTheme()"><i class="fa-solid fa-circle-half-stroke"></i></button>
+                </div>
+                <div class="field" style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border); padding-bottom:12px;">
+                  <span class="label" style="margin:0;">Academic Session</span>
+                  <span class="mono strong">2024/2025</span>
+                </div>
+                <div class="field" style="display:flex; justify-content:space-between; align-items:center;">
+                  <span class="label" style="margin:0;">Portal Version</span>
+                  <span class="badge badge-brand">v4.0.1</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div> <!-- end admin-dashboard-view -->
+
+    </div>
+  </main>
+
+  <!-- SCRIPT LOGIC -->
+  <script>
+    // ---- Theme ----
+    function toggleTheme() {
+      var isDark = document.documentElement.classList.toggle('dark');
+      localStorage.setItem('fpi_theme', isDark ? 'dark' : 'light');
+      var icon = document.getElementById('theme-icon');
+      if (icon) icon.className = isDark ? 'fa-solid fa-moon' : 'fa-solid fa-sun';
+    }
+
+    // ---- Sidebar mobile ----
+    function toggleSidebar() {
+      document.getElementById('admin-sidebar').classList.toggle('mobile-open');
+    }
+
+    // ---- Auth state ----
+    var adminToken = localStorage.getItem('fpi_admin_token') || null;
+    var rosterCache = [];
+
+    function showDashboard() {
+      document.getElementById('admin-auth-view').classList.add('hidden');
+      document.getElementById('admin-dashboard-view').classList.remove('hidden');
+      var logoutBtn = document.getElementById('nav-logout-btn');
+      if (logoutBtn) logoutBtn.classList.remove('hidden');
+
+      // Show menu button and sidebar when logged in
+      var menuBtn = document.getElementById('topbar-menu-btn');
+      if (menuBtn) menuBtn.classList.remove('hidden');
+      var sidebar = document.getElementById('admin-sidebar');
+      if (sidebar) sidebar.classList.remove('hidden');
+      openSection('dashboard');
+    }
+
+    function showAuthGate() {
+      document.getElementById('admin-dashboard-view').classList.add('hidden');
+      document.getElementById('admin-auth-view').classList.remove('hidden');
+      var logoutBtn = document.getElementById('nav-logout-btn');
+      if (logoutBtn) logoutBtn.classList.add('hidden');
+
+      // Hide menu button and sidebar when not logged in
+      var menuBtn = document.getElementById('topbar-menu-btn');
+      if (menuBtn) menuBtn.classList.add('hidden');
+      var sidebar = document.getElementById('admin-sidebar');
+      if (sidebar) sidebar.classList.add('hidden');
+    }
+
+    // ---- Section switching (sidebar-driven) ----
+    function openSection(sectionId) {
+      document.querySelectorAll('.tab-panel').forEach(function (panel) {
+        panel.classList.remove('active');
+      });
+      var targetPanel = document.getElementById('tab-' + sectionId);
+      if (targetPanel) targetPanel.classList.add('active');
+
+      ['dashboard', 'students', 'results', 'settings'].forEach(function (id) {
+        var btn = document.getElementById('nav-' + id);
+        if (btn) btn.classList.remove('active');
+      });
+      var activeNav = document.getElementById('nav-' + sectionId);
+      if (activeNav) activeNav.classList.add('active');
+
+      // Close mobile sidebar if open
+      document.getElementById('admin-sidebar').classList.remove('mobile-open');
+
+      if (sectionId === 'dashboard' && adminToken) {
+        fetchAdminStudents(); // refresh analytics
+      }
+    }
+
+    // Backwards-compatible alias
+    function switchTab(tabId) { openSection(tabId); }
+
+    // ---- On load: check auth ----
+    if (adminToken) {
+      showDashboard();
+      fetchAdminStudents();
+    } else {
+      showAuthGate();
+    }
+
+    // ---- Admin login ----
+    async function handleAdminAuth(event) {
+      if (event) event.preventDefault();
+      var pin = document.getElementById('admin-pin-field').value.trim();
+      var errBox = document.getElementById('admin-auth-err');
+      errBox.classList.add('hidden');
+
+      try {
+        var res = await fetch('/api/admin/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ pin: pin })
+        });
+        var data = await res.json();
+        if (!res.ok || !data.success) throw new Error(data.message);
+
+        adminToken = data.token;
+        localStorage.setItem('fpi_admin_token', adminToken);
+        showDashboard();
+        fetchAdminStudents();
+      } catch (err) {
+        errBox.textContent = err.message;
+        errBox.classList.remove('hidden');
+      }
+    }
+
+    function handleAdminLogout() {
+      adminToken = null;
+      localStorage.removeItem('fpi_admin_token');
+      document.getElementById('admin-pin-field').value = '';
+      showAuthGate();
+    }
+
+    // ---- Small helpers ----
+    function escapeHtml(value) {
+      return String(value == null ? '' : value)
+        .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+    }
+
+    // ---- Fetch students (feeds dashboard analytics + roster) ----
+    async function fetchAdminStudents() {
+      if (!adminToken) return;
+      try {
+        var res = await fetch('/api/admin/students', {
+          headers: { 'x-admin-key': adminToken }
+        });
+        var data = await res.json();
+        if (!res.ok || !data.success) throw new Error(data.message);
+
+        rosterCache = data.students || [];
+        renderDashboard();
+        renderRoster();
+      } catch (err) {
+        console.error('Fetch error:', err);
+      }
+    }
+
+    // ---- Dashboard: analysis only ----
+    function renderDashboard() {
+      var students = rosterCache;
+      var totalStudents = students.length;
+      var totalCourses = 0;
+      var pending = 0;
+      var deptMap = {};
+
+      students.forEach(function (s) {
+        var courses = Number(s.total_courses) || 0;
+        totalCourses += courses;
+        if (courses === 0) pending++;
+
+        var key = s.department || 'Unspecified';
+        if (!deptMap[key]) deptMap[key] = { students: 0, courses: 0 };
+        deptMap[key].students++;
+        deptMap[key].courses += courses;
+      });
+
+      document.getElementById('stat-student-count').textContent = totalStudents;
+      document.getElementById('stat-course-count').textContent = totalCourses;
+      document.getElementById('stat-avg-courses').textContent = totalStudents ? (totalCourses / totalStudents).toFixed(1) : '0';
+      document.getElementById('stat-pending-count').textContent = pending;
+
+      // Department breakdown table
+      var deptBody = document.getElementById('dept-table-body');
+      deptBody.innerHTML = '';
+      var depts = Object.keys(deptMap).sort();
+      if (depts.length === 0) {
+        deptBody.innerHTML = '<tr><td colspan="3" class="muted">No departments to show yet.</td></tr>';
+      } else {
+        depts.forEach(function (d) {
+          var tr = document.createElement('tr');
+          tr.innerHTML =
+            '<td class="strong">' + escapeHtml(d) + '</td>' +
+            '<td class="center mono">' + deptMap[d].students + '</td>' +
+            '<td class="center mono">' + deptMap[d].courses + '</td>';
+          deptBody.appendChild(tr);
+        });
+      }
+
+      // Recent registrations (API returns newest first)
+      var recent = document.getElementById('recent-list');
+      recent.innerHTML = '';
+      var recentRows = students.slice(0, 5);
+      if (recentRows.length === 0) {
+        recent.innerHTML = '<p class="muted small" style="margin:0;">No students registered yet.</p>';
+      } else {
+        recentRows.forEach(function (s) {
+          var item = document.createElement('div');
+          item.style.cssText = 'display:flex;justify-content:space-between;gap:12px;align-items:center;border-bottom:1px solid var(--border);padding-bottom:10px;';
+          item.innerHTML =
+            '<div>' +
+              '<div class="strong" style="font-size:13px;">' + escapeHtml(s.full_name) + '</div>' +
+              '<div class="muted xs">' + escapeHtml(s.department || '') + '</div>' +
+            '</div>' +
+            '<span class="badge-matric">' + escapeHtml(s.matric_no) + '</span>';
+          recent.appendChild(item);
+        });
+      }
+    }
+
+    // ---- Roster (Students panel): search + actions ----
+    function renderRoster() {
+      var query = (document.getElementById('roster-search').value || '').trim().toLowerCase();
+      var rows = rosterCache.filter(function (s) {
+        if (!query) return true;
+        return (s.full_name || '').toLowerCase().indexOf(query) !== -1 ||
+               (s.matric_no || '').toLowerCase().indexOf(query) !== -1 ||
+               (s.department || '').toLowerCase().indexOf(query) !== -1;
+      });
+
+      var tbody = document.getElementById('admin-table-body');
+      tbody.innerHTML = '';
+
+      if (rows.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" class="muted center">' + (query ? 'No students match your search.' : 'No students registered yet.') + '</td></tr>';
+        return;
+      }
+
+      rows.forEach(function (s) {
+        var tr = document.createElement('tr');
+        tr.innerHTML =
+          '<td><span class="badge-matric">' + escapeHtml(s.matric_no) + '</span></td>' +
+          '<td class="strong">' + escapeHtml(s.full_name) + '</td>' +
+          '<td class="soft">' + escapeHtml(s.school || '') + ' &bull; ' + escapeHtml(s.department || '') + '</td>' +
+          '<td class="center mono strong">' + (Number(s.total_courses) || 0) + '</td>' +
+          '<td class="right">' +
+            '<button class="link-action" onclick="addCoursesForStudent(\'' + escapeHtml(s.matric_no) + '\')"><i class="fa-solid fa-plus"></i> Courses</button> ' +
+            '<button class="link-danger" onclick="deleteStudent(\'' + escapeHtml(s.matric_no) + '\')"><i class="fa-solid fa-trash-can"></i> Delete</button>' +
+          '</td>';
+        tbody.appendChild(tr);
+      });
+    }
+
+    // Jump to Results panel with this student's matric prefilled
+    function addCoursesForStudent(matric) {
+      openSection('results');
+      document.getElementById('res-matric').value = matric;
+      document.getElementById('view-matric').value = matric;
+      loadStudentResults();
+    }
+
+    // ---- Register student ----
+    async function handleRegisterStudent(event) {
+      if (event) event.preventDefault();
+      var payload = {
+        matric_no: document.getElementById('reg-matric').value.trim(),
+        password: document.getElementById('reg-password').value.trim(),
+        full_name: document.getElementById('reg-name').value.trim(),
+        school: document.getElementById('reg-school').value,
+        department: document.getElementById('reg-dept').value.trim(),
+        programme: document.getElementById('reg-prog').value.trim(),
+        level: 'ND 1',
+        academic_session: document.getElementById('reg-session').value.trim(),
+        email: document.getElementById('reg-email').value.trim()
+      };
+
+      try {
+        var res = await fetch('/api/admin/students', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'x-admin-key': adminToken },
+          body: JSON.stringify(payload)
+        });
+        var data = await res.json();
+        if (!res.ok || !data.success) throw new Error(data.message);
+
+        alert(data.message);
+        fetchAdminStudents();
+      } catch (err) {
+        alert('Registration error: ' + err.message);
+      }
+    }
+
+    // ---- Dynamic course rows (Results panel) ----
+    function addCourseRow() {
+      var box = document.getElementById('course-rows');
+      var row = document.createElement('div');
+      row.className = 'crs-row';
+      row.style.cssText = 'display:grid;grid-template-columns:1.2fr 2fr .6fr .6fr auto;gap:8px;margin-bottom:8px;';
+      row.innerHTML =
+        '<input type="text" class="input mono crs-code" placeholder="COM 111">' +
+        '<input type="text" class="input crs-title" placeholder="Course title">' +
+        '<input type="number" min="1" class="input crs-cu" placeholder="2" style="text-align:center;">' +
+        '<input type="number" min="0" max="100" class="input crs-score" placeholder="70" style="text-align:center;font-weight:700;">' +
+        '<button type="button" class="link-danger" onclick="removeCourseRow(this)" aria-label="Remove row"><i class="fa-solid fa-xmark"></i></button>';
+      box.appendChild(row);
+      row.querySelector('.crs-code').focus();
+    }
+
+    function removeCourseRow(btn) {
+      var box = document.getElementById('course-rows');
+      if (box.querySelectorAll('.crs-row').length > 1) {
+        btn.closest('.crs-row').remove();
+      } else {
+        // Keep at least one row; just clear it
+        btn.closest('.crs-row').querySelectorAll('input').forEach(function (input) { input.value = ''; });
+      }
+    }
+
+    // Seed with two empty rows
+    addCourseRow();
+    addCourseRow();
+
+    // ---- Batch course upload ----
+    async function handleBatchCourses(event) {
+      if (event) event.preventDefault();
+      var matric_no = document.getElementById('res-matric').value.trim();
+      var semester = document.getElementById('crs-sem').value;
+
+      var courses = [];
+      document.querySelectorAll('#course-rows .crs-row').forEach(function (row) {
+        var code = row.querySelector('.crs-code').value.trim();
+        var title = row.querySelector('.crs-title').value.trim();
+        var cu = row.querySelector('.crs-cu').value;
+        var score = row.querySelector('.crs-score').value;
+        if (code && title && score !== '') {
+          courses.push({
+            course_code: code,
+            course_title: title,
+            credit_unit: Number(cu) || 2,
+            score: Number(score)
+          });
+        }
+      });
+
+      if (!matric_no) { alert('Student matric number is required.'); return; }
+      if (courses.length === 0) { alert('Fill in at least one complete course row (code, title, score).'); return; }
+
+      try {
+        var res = await fetch('/api/admin/results/batch', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'x-admin-key': adminToken },
+          body: JSON.stringify({ matric_no: matric_no, semester: semester, courses: courses })
+        });
+        var data = await res.json();
+        if (!res.ok || !data.success) throw new Error(data.message);
+
+        alert(data.message);
+        // Clear course rows
+        document.getElementById('course-rows').innerHTML = '';
+        addCourseRow();
+        addCourseRow();
+        // Refresh analytics + student's result view
+        fetchAdminStudents();
+        loadStudentResults();
+      } catch (err) {
+        alert('Course upload error: ' + err.message);
+      }
+    }
+
+    // ---- View a student's uploaded results ----
+    async function loadStudentResults() {
+      var matric = document.getElementById('view-matric').value.trim();
+      var box = document.getElementById('student-results-box');
+      if (!matric) { box.innerHTML = '<p class="muted small" style="margin:0;">Enter a matric number to view uploaded results.</p>'; return; }
+
+      box.innerHTML = '<p class="muted small" style="margin:0;">Loading...</p>';
+      try {
+        var res = await fetch('/api/admin/results/' + encodeURIComponent(matric), {
+          headers: { 'x-admin-key': adminToken }
+        });
+        var data = await res.json();
+        if (!res.ok || !data.success) throw new Error(data.message);
+
+        var results = data.results || [];
+        if (results.length === 0) {
+          box.innerHTML = '<p class="muted small" style="margin:0;">No results uploaded for ' + escapeHtml(matric) + ' yet.</p>';
+          return;
+        }
+
+        var html =
+          '<div class="table-wrap"><table class="table"><thead><tr>' +
+          '<th>Code</th><th>Course Title</th><th class="center">CU</th><th class="center">Score</th><th class="center">Grade</th><th>Semester</th><th class="right">Action</th>' +
+          '</tr></thead><tbody>';
+
+        results.forEach(function (r) {
+          html +=
+            '<tr>' +
+              '<td class="mono strong">' + escapeHtml(r.course_code) + '</td>' +
+              '<td>' + escapeHtml(r.course_title) + '</td>' +
+              '<td class="center mono">' + escapeHtml(r.credit_unit) + '</td>' +
+              '<td class="center mono strong">' + escapeHtml(r.score) + '</td>' +
+              '<td class="center"><span class="badge-matric">' + escapeHtml(r.grade) + '</span></td>' +
+              '<td class="soft">' + escapeHtml(r.semester) + '</td>' +
+              '<td class="right"><button class="link-danger" onclick="deleteResult(' + Number(r.id) + ', \'' + escapeHtml(matric) + '\')"><i class="fa-solid fa-trash-can"></i></button></td>' +
+            '</tr>';
+        });
+
+        html += '</tbody></table></div>';
+        box.innerHTML = html;
+      } catch (err) {
+        box.innerHTML = '<p class="muted small" style="margin:0;">' + escapeHtml(err.message) + '</p>';
+      }
+    }
+
+    // ---- Delete a single course result ----
+    async function deleteResult(resultId, matric) {
+      if (!confirm('Delete this course result? This action is irreversible.')) return;
+      try {
+        var res = await fetch('/api/admin/results/' + resultId, {
+          method: 'DELETE',
+          headers: { 'x-admin-key': adminToken }
+        });
+        var data = await res.json();
+        if (!res.ok || !data.success) throw new Error(data.message);
+
+        alert(data.message);
+        loadStudentResults();
+        fetchAdminStudents();
+      } catch (err) {
+        alert('Delete failed: ' + err.message);
+      }
+    }
+
+    // ---- Delete student ----
+    async function deleteStudent(matric) {
+      if (!confirm('Confirm deletion of student ' + matric + '? This action is irreversible.')) return;
+
+      try {
+        var res = await fetch('/api/admin/students/' + encodeURIComponent(matric), {
+          method: 'DELETE',
+          headers: { 'x-admin-key': adminToken }
+        });
+        var data = await res.json();
+        if (!res.ok || !data.success) throw new Error(data.message);
+
+        alert(data.message);
+        fetchAdminStudents();
+      } catch (err) {
+        alert('Delete failed: ' + err.message);
+      }
+    }
+
+    // ---- DOM ready: sync theme icon + hide menu when unauthorized ----
+    document.addEventListener('DOMContentLoaded', function () {
+      if (document.documentElement.classList.contains('dark')) {
+        var icon = document.getElementById('theme-icon');
+        if (icon) icon.className = 'fa-solid fa-moon';
+      }
+
+      // Hide menu button and sidebar on initial load if not logged in
+      var adminToken = localStorage.getItem('fpi_admin_token') || null;
+      if (!adminToken) {
+        var menuBtn = document.getElementById('topbar-menu-btn');
+        if (menuBtn) menuBtn.classList.add('hidden');
+        var sidebar = document.getElementById('admin-sidebar');
+        if (sidebar) sidebar.classList.add('hidden');
+      }
+    });
+  </script>
+</body>
+</html>
