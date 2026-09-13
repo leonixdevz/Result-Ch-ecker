@@ -33,23 +33,12 @@ function buildMailTransport() {
     });
   }
 
-<<<<<<< HEAD
-  // No real SMTP config: use a disposable Ethereal account.
-  // createTestAccount() is async; callers that need the transport at
-  // module load time should be OK because Ethereal is only used as a
-  // last resort and the OTP endpoints are async anyway.
-=======
->>>>>>> dddfd06 (ui-course-email)
   return null;
 }
 
 let cachedTransport = null;
 async function getMailTransport() {
   if (cachedTransport) return cachedTransport;
-<<<<<<< HEAD
-  const t = buildMailTransport();
-  if (t) { cachedTransport = t; return t; }
-=======
 
   const configured = buildMailTransport();
   if (configured) {
@@ -63,7 +52,6 @@ async function getMailTransport() {
       console.warn('[EMAIL] SMTP transport rejected credentials, falling back to Ethereal:', err.message.slice(0, 80));
     }
   }
->>>>>>> dddfd06 (ui-course-email)
 
   const account = await nodemailer.createTestAccount();
   cachedTransport = nodemailer.createTransport({
@@ -90,10 +78,7 @@ function generateToken() {
  * @param {string} [mode='verification'] - 'verification' (login) or 'reset' (password reset)
  */
 async function sendLoginToken(student, token, mode = 'verification') {
-<<<<<<< HEAD
-=======
   const transport = await getMailTransport();
->>>>>>> dddfd06 (ui-course-email)
   const from = process.env.SMTP_FROM || 'no-reply@fpi.edu.ng';
   const isReset = mode === 'reset';
 
@@ -101,13 +86,8 @@ async function sendLoginToken(student, token, mode = 'verification') {
     from: `"Federal Polytechnic, Ilaro Result Checker" <${from}>`,
     to: student.email,
     subject: isReset
-<<<<<<< HEAD
-      ? 'Your Password Reset Code - Result Checker'
-      : 'Your One-Time Login Code - Result Checker',
-=======
       ? 'Your Password Reset Code - FPI Result Checker'
       : 'Your One-Time Login Code - FPI Result Checker',
->>>>>>> dddfd06 (ui-course-email)
     text: [
       `Hello ${student.full_name},`,
       '',
@@ -122,15 +102,6 @@ async function sendLoginToken(student, token, mode = 'verification') {
         : 'This code will expire in 10 minutes. If you did not request this, please ignore this email.',
       '',
       '- Federal Polytechnic, Ilaro Result Checker System'
-<<<<<<< HEAD
-    ].join('\n')
-  };
-
-  await mailTransport.sendMail(mailOptions);
-}
-
-module.exports = { generateToken, sendLoginToken, mailTransport };
-=======
     ].join('\n'),
     html: [
       '<div style="font-family: sans-serif; max-width: 600px;">',
@@ -153,4 +124,3 @@ module.exports = { generateToken, sendLoginToken, mailTransport };
 }
 
 module.exports = { generateToken, sendLoginToken, getMailTransport };
->>>>>>> dddfd06 (ui-course-email)

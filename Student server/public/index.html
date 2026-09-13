@@ -375,29 +375,6 @@
 
       <div class="modal-body">
 
-<<<<<<< HEAD
-        <!-- ============ LOGIN FORM ============ -->
-        <!-- Password-mode fields -->
-        <form id="login-form-password" onsubmit="handleLoginPassword(event)" style="display:none;">
-          <div id="login-mode-toggle">
-            <button type="button" class="mode-btn active" id="mode-password" onclick="setLoginMode('password')">
-              <i class="fa-solid fa-key"></i> Password
-            </button>
-            <button type="button" class="mode-btn" id="mode-email" onclick="setLoginMode('email')">
-              <i class="fa-solid fa-envelope"></i> Email Code
-            </button>
-          </div>
-
-          <div class="field modal-field">
-            <label class="label" for="student-matric">Matriculation Number</label>
-            <input type="text" id="student-matric" required placeholder="e.g. 2460113253" autocomplete="off" class="input mono">
-            <p class="help-text">FPI Format: 24 (Yr) 60 (School) 1 (Dept) 1 (Full-Time) 3253 (ID)</p>
-          </div>
-
-          <div class="field modal-field">
-            <label class="label" for="student-password">Password</label>
-            <input type="password" id="student-password" required placeholder="Enter your password" class="input mono">
-=======
         <!-- ============ LOGIN FORM (single shared form; fields shown per step) ============ -->
         <div id="login-mode-toggle">
           <button type="button" class="mode-btn active" id="mode-password" onclick="setLoginMode('password')">
@@ -424,7 +401,6 @@
             <label class="label" for="student-token">Verification Code</label>
             <input type="text" id="student-token" placeholder="Enter the code sent to your email" class="input mono" inputmode="numeric" maxlength="6" autocomplete="one-time-code">
             <p class="help-text">Check your inbox (or spam) for the 6‑digit code.</p>
->>>>>>> dddfd06 (ui-course-email)
           </div>
 
           <div id="login-status-box" class="alert hidden" style="margin:10px 0 4px;"></div>
@@ -443,75 +419,6 @@
           </button>
         </form>
 
-<<<<<<< HEAD
-        <!-- Email-mode step 1 fields (matric only) -->
-        <form id="login-form-email" onsubmit="handleLoginEmailRequest(event)" style="display:none;">
-          <div id="login-mode-toggle">
-            <button type="button" class="mode-btn active" id="mode-password" onclick="setLoginMode('password')">
-              <i class="fa-solid fa-key"></i> Password
-            </button>
-            <button type="button" class="mode-btn" id="mode-email" onclick="setLoginMode('email')">
-              <i class="fa-solid fa-envelope"></i> Email Code
-            </button>
-          </div>
-
-          <div class="field modal-field">
-            <label class="label" for="student-matric">Matriculation Number</label>
-            <input type="text" id="student-matric" required placeholder="e.g. 2460113253" autocomplete="off" class="input mono">
-            <p class="help-text">FPI Format: 24 (Yr) 60 (School) 1 (Dept) 1 (Full-Time) 3253 (ID)</p>
-          </div>
-
-          <div id="login-status-box" class="alert hidden" style="margin:10px 0 4px;"></div>
-          <div id="login-error-box" class="alert hidden" style="margin-bottom:14px;"></div>
-
-          <button type="submit" id="login-btn" class="btn btn-primary btn-lg" style="width:100%;">
-            <i class="fa-solid fa-envelope"></i>
-            <span id="login-btn-text">Send Verification Code</span>
-          </button>
-
-          <p class="mode-hint" id="mode-hint">Enter your matriculation number to receive a one-time code by email. Press Enter to send it.</p>
-
-          <button type="button" class="link-btn" onclick="openForgotPasswordFlow()" style="margin-top:14px;width:100%;text-align:center;border:none;background:none;cursor:pointer;color:var(--brand);font-size:13px;font-weight:600;padding:4px;">
-            <i class="fa-solid fa-arrow-right-to-bracket"></i>
-            Forgot your password?
-          </button>
-        </form>
-
-        <!-- Email-mode step 2 fields (token only; matric is hidden but no longer required) -->
-        <form id="login-form-token" onsubmit="handleLoginEmailVerify(event)" style="display:none;">
-          <div id="login-mode-toggle">
-            <button type="button" class="mode-btn active" id="mode-password" onclick="setLoginMode('password')">
-              <i class="fa-solid fa-key"></i> Password
-            </button>
-            <button type="button" class="mode-btn" id="mode-email" onclick="setLoginMode('email')">
-              <i class="fa-solid fa-envelope"></i> Email Code
-            </button>
-          </div>
-
-          <div class="field modal-field">
-            <label class="label" for="student-token">Verification Code</label>
-            <input type="text" id="student-token" required placeholder="Enter the code sent to your email" class="input mono">
-            <p class="help-text">Check your inbox (or spam) for the 6‑digit code.</p>
-          </div>
-
-          <div id="login-status-box" class="alert hidden" style="margin:10px 0 4px;"></div>
-          <div id="login-error-box" class="alert hidden" style="margin-bottom:14px;"></div>
-
-          <button type="submit" id="login-btn" class="btn btn-primary btn-lg" style="width:100%;">
-            <i class="fa-solid fa-key"></i>
-            <span id="login-btn-text">Verify Code</span>
-          </button>
-
-          <p class="mode-hint" id="mode-hint">Enter the verification code sent to your email. Press Enter to verify.</p>
-
-          <button type="button" class="link-btn" onclick="openForgotPasswordFlow()" style="margin-top:14px;width:100%;text-align:center;border:none;background:none;cursor:pointer;color:var(--brand);font-size:13px;font-weight:600;padding:4px;">
-            <i class="fa-solid fa-arrow-right-to-bracket"></i>
-            Forgot your password?
-          </button>
-        </form>
-=======
-
->>>>>>> dddfd06 (ui-course-email)
 
         <!-- ============ FORGOT / RESET PASSWORD FLOW ============ -->
         <div id="reset-flow" class="hidden" style="margin-top:18px;padding-top:18px;border-top:1px solid var(--border);display:flex;flex-direction:column;gap:12px;">
@@ -619,17 +526,6 @@
     var EMAIL_STEP = 'request';        // 'request' (step 1) | 'verify' (step 2)
 
     /**
-<<<<<<< HEAD
-     * Chooses which login <form> is visible based on the selected mode
-     * and the current email-step.
-     *
-     *   password mode       -> login-form-password (matric + password)
-     *   email mode, step 1  -> login-form-email  (matric only)
-     *   email mode, step 2  -> login-form-token  (token only)
-     */
-    function setLoginMode(mode) {
-      CURRENT_LOGIN_MODE = mode;
-=======
      * Single submit handler for the shared login form. Dispatches to the
      * handler for the current mode/step:
      *   password mode       -> handleLoginPassword
@@ -650,7 +546,6 @@
     function setLoginMode(mode) {
       CURRENT_LOGIN_MODE = mode;
       EMAIL_STEP = 'request';
->>>>>>> dddfd06 (ui-course-email)
 
       var passwordBtn = document.getElementById('mode-password');
       var emailBtn = document.getElementById('mode-email');
@@ -661,9 +556,6 @@
       var errorBox = document.getElementById('login-error-box');
       var hint = document.getElementById('mode-hint');
 
-<<<<<<< HEAD
-      // Reset the visible fields when switching modes
-=======
       // The matric input may have been disabled on the token step.
       var matricInput = document.getElementById('student-matric');
       if (matricInput) matricInput.disabled = false;
@@ -691,76 +583,10 @@
     function showLoginForm(which) {
       var passField = document.getElementById('field-password');
       var tokenField = document.getElementById('field-token');
->>>>>>> dddfd06 (ui-course-email)
       var matricInput = document.getElementById('student-matric');
       var passInput = document.getElementById('student-password');
       var tokenInput = document.getElementById('student-token');
 
-<<<<<<< HEAD
-      matricInput.value = '';
-      passInput.value = '';
-      tokenInput.value = '';
-
-      if (mode === 'password') {
-        // Password mode always uses the matric+password form.
-        showLoginForm('password');
-        statusBox.classList.add('hidden');
-        statusBox.style.color = '';
-        hint.textContent = 'Enter your matriculation number and password to sign in. Press Enter to submit.';
-      } else {
-        // Email mode: step 1 unless we already moved to step 2.
-        EMAIL_STEP = 'request';
-        showLoginForm('email');
-        statusBox.classList.add('hidden');
-        statusBox.style.color = '';
-        hint.textContent = 'Enter your matriculation number to receive a one-time code by email. Press Enter to send it.';
-      }
-
-      errorBox.classList.add('hidden');
-      errorBox.style.color = '';
-    }
-
-    /**
-     * Show exactly one of the three login forms and hide the other two.
-     * Only the visible form's required fields exist for the browser's
-     * native validation, so hidden required fields never trigger the
-     * "invalid form control not focusable" warning.
-     */
-    function showLoginForm(which) {
-      var forms = {
-        password: document.getElementById('login-form-password'),
-        email:    document.getElementById('login-form-email'),
-        token:    document.getElementById('login-form-token')
-      };
-
-      Object.keys(forms).forEach(function (key) {
-        var f = forms[key];
-        if (!f) return;
-        // Only the chosen form is displayed as a block; the others are display:none.
-        f.style.display = (key === which) ? 'block' : 'none';
-      });
-
-      // Ensure the shared inputs are cleared appropriately.
-      if (which === 'token') {
-        // In token-step we keep the matric value in case the user goes back,
-        // but the visible form only contains the token input.
-        return;
-      }
-
-      // For password and email-request forms, clear both matric and password/token.
-      var matric = document.getElementById('student-matric');
-      var pass = document.getElementById('student-password');
-      var token = document.getElementById('student-token');
-      if (matric) matric.value = '';
-      if (pass) pass.value = '';
-      if (token) token.value = '';
-    }
-
-    function getVisibleLoginForm() {
-      if (CURRENT_LOGIN_MODE === 'password') return document.getElementById('login-form-password');
-      if (EMAIL_STEP === 'verify')        return document.getElementById('login-form-token');
-      return document.getElementById('login-form-email');
-=======
       if (matricInput) matricInput.required = (which !== 'token');
       if (passInput) passInput.required = (which === 'password');
       if (tokenInput) tokenInput.required = (which === 'token');
@@ -776,7 +602,6 @@
 
     function getVisibleLoginForm() {
       return document.getElementById('login-form');
->>>>>>> dddfd06 (ui-course-email)
     }
 
     function getVisibleLoginFormBtnText() {
@@ -967,18 +792,12 @@
           errBox.classList.remove('hidden');
           errBox.style.color = 'var(--danger)';
         } else if (data.needsToken) {
-<<<<<<< HEAD
-          // Move to step 2 (token form)
-          EMAIL_STEP = 'verify';
-          showLoginForm('token');
-=======
           // Move to step 2 (token field)
           EMAIL_STEP = 'verify';
           showLoginForm('token');
           // Keep the matric value for the verify request but make it read-only.
           var matricInput = document.getElementById('student-matric');
           if (matricInput) matricInput.disabled = true;
->>>>>>> dddfd06 (ui-course-email)
           btnText.textContent = getVisibleLoginFormBtnText();
 
           var tokenInput = document.getElementById('student-token');
@@ -1058,11 +877,7 @@
         errBox.classList.remove('hidden');
       } finally {
         btn.disabled = false;
-<<<<<<< HEAD
-        btnText.textContent = 'Access Statement of Result';
-=======
         btnText.textContent = getVisibleLoginFormBtnText();
->>>>>>> dddfd06 (ui-course-email)
       }
     }
 
@@ -1072,13 +887,6 @@
     function openForgotPasswordFlow() {
       RESET_FLOW_STATE = 'request';
 
-<<<<<<< HEAD
-      // Hide all three login forms while the reset flow is open
-      ['login-form-password', 'login-form-email', 'login-form-token'].forEach(function (id) {
-        var f = document.getElementById(id);
-        if (f) f.style.display = 'none';
-      });
-=======
       // Hide the shared login form and mode toggle while the reset flow is open
       var loginForm = document.getElementById('login-form');
       if (loginForm) loginForm.style.display = 'none';
@@ -1089,7 +897,6 @@
       var matricInput = document.getElementById('student-matric');
       if (matricInput) matricInput.disabled = false;
       EMAIL_STEP = 'request';
->>>>>>> dddfd06 (ui-course-email)
 
       // Hide the login submit button (not needed while reset flow is active)
       var loginBtn = document.getElementById('login-btn');
@@ -1113,15 +920,11 @@
       document.getElementById('reset-flow').classList.add('hidden');
       hideResetErrors();
 
-<<<<<<< HEAD
-      // Restore the appropriate login form for the current mode
-=======
       // Restore the shared login form for the current mode
       var loginForm = document.getElementById('login-form');
       if (loginForm) loginForm.style.display = '';
       var modeToggle = document.getElementById('login-mode-toggle');
       if (modeToggle) modeToggle.style.display = '';
->>>>>>> dddfd06 (ui-course-email)
       showLoginForm(CURRENT_LOGIN_MODE === 'password' ? 'password' : 'email');
 
       // Restore the login button label for the visible form
@@ -1265,16 +1068,6 @@
         } else {
           // Success — collapse reset flow, restore login form, show success on login
           document.getElementById('reset-flow').classList.add('hidden');
-<<<<<<< HEAD
-          showLoginForm(CURRENT_LOGIN_MODE === 'password' ? 'password' : 'email');
-
-          var loginBtn = document.getElementById('login-btn');
-          if (loginBtn) {
-            loginBtn.style.display = '';
-            var span = loginBtn.querySelector('span');
-            if (span) span.textContent = getVisibleLoginFormBtnText();
-          }
-=======
           var loginFormEl = document.getElementById('login-form');
           if (loginFormEl) loginFormEl.style.display = '';
           var modeToggleEl = document.getElementById('login-mode-toggle');
@@ -1285,7 +1078,6 @@
 
           var loginBtn = document.getElementById('login-btn');
           if (loginBtn) loginBtn.style.display = '';
->>>>>>> dddfd06 (ui-course-email)
 
           var loginErrBox = document.getElementById('login-error-box');
           loginErrBox.textContent = 'Password reset successful. You can now log in with your new password.';
@@ -1296,10 +1088,6 @@
           if (matricField) matricField.value = matric;
           var passField = document.getElementById('student-password');
           if (passField) passField.value = '';
-<<<<<<< HEAD
-          setLoginMode('password');
-=======
->>>>>>> dddfd06 (ui-course-email)
           if (passField) passField.focus();
         }
       } catch (err) {
