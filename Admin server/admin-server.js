@@ -11,7 +11,7 @@ const { db, getNBTEGradeAndPoint, getNBTEClassification, parseFPIMatric } = requ
 
 const app = express();
 const PORT = process.env.ADMIN_PORT || 4000;
-const PORT = process.env.ADMIN_PORT || 3008;
+
 
 const ADMIN_SECRET_PIN = process.env.ADMIN_PIN || 'FPI-ADMIN-2026';
 

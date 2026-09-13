@@ -10,7 +10,7 @@ const { generateToken, sendLoginToken } = require('../emailToken');
 
 const app = express();
 const PORT = process.env.STUDENT_PORT || 3000;
-const PORT = process.env.STUDENT_PORT || 3006;
+
 
 // Middleware
 app.use(cors());
