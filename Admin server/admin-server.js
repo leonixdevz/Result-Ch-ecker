@@ -10,11 +10,9 @@ const path = require('path');
 const { db, getNBTEGradeAndPoint, getNBTEClassification, parseFPIMatric } = require('../database');
 
 const app = express();
-<<<<<<< HEAD
 const PORT = process.env.ADMIN_PORT || 4000;
-=======
 const PORT = process.env.ADMIN_PORT || 3008;
->>>>>>> dddfd06 (ui-course-email)
+
 const ADMIN_SECRET_PIN = process.env.ADMIN_PIN || 'FPI-ADMIN-2026';
 
 // Middleware

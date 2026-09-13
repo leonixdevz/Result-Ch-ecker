@@ -9,11 +9,8 @@ const { INSTITUTIONS, evaluateAdmissionEligibility } = require('../screening');
 const { generateToken, sendLoginToken } = require('../emailToken');
 
 const app = express();
-<<<<<<< HEAD
 const PORT = process.env.STUDENT_PORT || 3000;
-=======
 const PORT = process.env.STUDENT_PORT || 3006;
->>>>>>> dddfd06 (ui-course-email)
 
 // Middleware
 app.use(cors());
